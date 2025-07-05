@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { RouterLink } from 'vue-router'
+
 interface Stats {
   totalCustomers: number
   totalRevenue: number
@@ -75,20 +77,24 @@ const formatCurrency = (amount: number) => {
     </div>
 
     <div class="quick-actions">
-      <h3>快速操作</h3>
+      <h3>��速操作</h3>
       <div class="action-buttons">
-        <router-link to="/customers" class="action-btn">
+        <RouterLink to="/customers" class="action-btn">
           <span class="btn-icon">👤</span>
-          新增客戶
-        </router-link>
-        <router-link to="/services" class="action-btn">
+          客戶管理
+        </RouterLink>
+        <RouterLink to="/services" class="action-btn">
           <span class="btn-icon">✨</span>
-          管理服務
-        </router-link>
-        <router-link to="/reports" class="action-btn">
+          服務管理
+        </RouterLink>
+        <RouterLink to="/reports" class="action-btn">
           <span class="btn-icon">📋</span>
-          查看報表
-        </router-link>
+          財務報表
+        </RouterLink>
+        <RouterLink to="/customer-register" class="action-btn customer-register">
+          <span class="btn-icon">📝</span>
+          客戶註冊
+        </RouterLink>
       </div>
     </div>
   </div>
@@ -222,6 +228,17 @@ const formatCurrency = (amount: number) => {
   color: white;
   border-color: #8b5cf6;
   transform: translateY(-2px);
+}
+
+.action-btn.customer-register {
+  background: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
+.action-btn.customer-register:hover {
+  background: #059669;
+  border-color: #059669;
 }
 
 .btn-icon {
