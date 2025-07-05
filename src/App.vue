@@ -7,12 +7,15 @@ import { RouterLink, RouterView } from 'vue-router'
     <header class="app-header">
       <div class="header-content">
         <div class="logo-section">
-          <div class="logo">🤖</div>
-          <h1>Line Bot 管理系統</h1>
+          <div class="logo">💼</div>
+          <h1>自理業者管理系統</h1>
         </div>
 
         <nav class="nav-menu">
-          <RouterLink to="/" class="nav-link">儀表板</RouterLink>
+          <RouterLink to="/" class="nav-link">首頁</RouterLink>
+          <RouterLink to="/customers" class="nav-link">客戶管理</RouterLink>
+          <RouterLink to="/services" class="nav-link">服務管理</RouterLink>
+          <RouterLink to="/reports" class="nav-link">財務報表</RouterLink>
           <RouterLink to="/about" class="nav-link">關於</RouterLink>
         </nav>
       </div>
@@ -23,7 +26,7 @@ import { RouterLink, RouterView } from 'vue-router'
     </main>
 
     <footer class="app-footer">
-      <p>&copy; 2024 Line Bot 管理系統. 所有權利保留.</p>
+      <p>&copy; 2024 自理業者管理系統. 專為美容美體、美髮、健身教練設計.</p>
     </footer>
   </div>
 </template>
@@ -61,7 +64,7 @@ import { RouterLink, RouterView } from 'vue-router'
 
 .logo {
   font-size: 2rem;
-  background: linear-gradient(45deg, #3b82f6, #06b6d4);
+  background: linear-gradient(45deg, #8b5cf6, #06b6d4);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -94,7 +97,7 @@ import { RouterLink, RouterView } from 'vue-router'
 }
 
 .nav-link.router-link-exact-active {
-  background: #3b82f6;
+  background: #8b5cf6;
   color: white;
 }
 
@@ -130,6 +133,13 @@ import { RouterLink, RouterView } from 'vue-router'
 
   .nav-menu {
     gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .nav-link {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
   }
 }
 </style>
