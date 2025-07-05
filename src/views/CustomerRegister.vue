@@ -1,13 +1,64 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useCustomerStore } from '../stores/customer'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 const customerStore = useCustomerStore()
 const router = useRouter()
+const route = useRoute()
 
 const showSuccessMessage = ref(false)
 const isSubmitting = ref(false)
+const isLineVerified = ref(false)
+const lineUserData = ref(null)
+
+// 檢查 LINE 驗證狀態
+onMounted(() => {
+  checkLineVerification()
+})
+
+const checkLineVerification = () => {
+  // 檢查 URL 參數是否有驗證成功標記
+  if (route.query.verified === 'true') {
+    isLineVerified.value = true
+    // 清除 URL 參數
+    router.replace({ query: {} })
+  }
+
+  // 檢查 localStorage 中的 LINE 驗證資訊
+  const storedAuth = localStorage.getItem('lineAuth')
+  if (storedAuth) {
+    try {
+      const authData = JSON.parse(storedAuth)
+      if (authData.verified) {
+        isLineVerified.value = true
+        lineUserData.value = authData
+        // 自動填入一些基���資訊
+        if (authData.displayName && !form.name) {
+          form.name = authData.displayName
+        }
+      }
+    } catch (error) {
+      console.error('解析 LINE 驗證資料失敗:', error)
+    }
+  }
+}
+
+const initiateLineLogin = () => {
+  // LINE Login URL
+  const clientId = 'YOUR_LINE_CHANNEL_ID' // 請替換為您的 LINE Channel ID
+  const redirectUri = encodeURIComponent(`${window.location.origin}/auth/line/callback`)
+  const state = Math.random().toString(36).substring(7) // 生成隨機 state
+  const scope = 'profile%20openid'
+
+  const lineLoginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}&scope=${scope}`
+
+  // 儲存 state 用於驗證
+  localStorage.setItem('lineOAuthState', state)
+
+  // 跳轉到 LINE 登入頁面
+  window.location.href = lineLoginUrl
+}
 
 const form = reactive({
   name: '',
@@ -171,8 +222,40 @@ const goBack = () => {
         </div>
       </div>
 
+      <!-- LINE 驗證區塊 -->
+      <div v-if="!isLineVerified" class="line-verification-section">
+        <div class="verification-card">
+          <div class="line-logo">
+            <img
+              src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iIzAwQzMwMCIvPgo8cGF0aCBkPSJNMjguNSAxNi41QzI4LjUgMTMuNDYyNCAyNS41Mzc2IDExIDIyIDExSDEyQzguNDYyNDMgMTEgNS41IDEzLjQ2MjQgNS41IDE2LjVWMjMuNUM1LjUgMjYuNTM3NiA4LjQ2MjQzIDI5IDEyIDI5SDE1LjVMMjAgMzJWMjlIMjJDMjUuNTM3NiAyOSAyOC41IDI2LjUzNzYgMjguNSAyMy41VjE2LjVaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K"
+              alt="LINE"
+            />
+          </div>
+          <h3>LINE 驗證</h3>
+          <p>為了確保您的身份安全，請先透過 LINE 進行驗證</p>
+          <button @click="initiateLineLogin" class="line-login-btn">
+            <span class="line-icon">📱</span>
+            使用 LINE 登入
+          </button>
+          <div class="verification-note">
+            <small>這將會跳轉到 LINE 官方頁面進行安全驗證</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- 驗證成功提示 -->
+      <div v-if="isLineVerified" class="verification-success">
+        <div class="success-badge">
+          <span class="success-icon">✅</span>
+          <span class="success-text">LINE 驗證成功</span>
+          <span v-if="lineUserData?.displayName" class="user-name">
+            歡迎，{{ lineUserData.displayName }}
+          </span>
+        </div>
+      </div>
+
       <!-- 業務類型選擇 -->
-      <div class="business-type-section">
+      <div v-if="isLineVerified" class="business-type-section">
         <h2>請選擇服務類型</h2>
         <div class="business-types">
           <label
@@ -192,7 +275,7 @@ const goBack = () => {
         </div>
       </div>
 
-      <form @submit.prevent="submitForm" class="register-form">
+      <form v-if="isLineVerified" @submit.prevent="submitForm" class="register-form">
         <!-- 基本資料 -->
         <div class="form-section">
           <h3>基本資料</h3>
@@ -426,6 +509,102 @@ const goBack = () => {
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
+}
+
+.line-verification-section {
+  margin-bottom: 2rem;
+}
+
+.verification-card {
+  background: var(--color-background-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.line-logo {
+  margin-bottom: 1rem;
+}
+
+.line-logo img {
+  width: 60px;
+  height: 60px;
+}
+
+.verification-card h3 {
+  color: var(--color-heading);
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.verification-card p {
+  color: var(--color-text);
+  opacity: 0.8;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.line-login-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #00c300;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 1rem;
+}
+
+.line-login-btn:hover {
+  background: #00a000;
+  transform: translateY(-2px);
+}
+
+.line-icon {
+  font-size: 1.2rem;
+}
+
+.verification-note {
+  color: var(--color-text);
+  opacity: 0.6;
+  font-size: 0.85rem;
+}
+
+.verification-success {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid #10b981;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.success-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  justify-content: center;
+}
+
+.success-icon {
+  font-size: 1.2rem;
+}
+
+.success-text {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.user-name {
+  color: var(--color-text);
+  opacity: 0.8;
+  font-size: 0.9rem;
 }
 
 .register-header {

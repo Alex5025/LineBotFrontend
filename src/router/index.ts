@@ -4,6 +4,7 @@ import CustomerManagement from '../views/CustomerManagement.vue'
 import ServiceManagement from '../views/ServiceManagement.vue'
 import FinancialReports from '../views/FinancialReports.vue'
 import CustomerRegister from '../views/CustomerRegister.vue'
+import LineAuthCallback from '../views/LineAuthCallback.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +33,11 @@ const router = createRouter({
       path: '/customer-register',
       name: 'customer-register',
       component: CustomerRegister,
+    },
+    {
+      path: '/auth/line/callback',
+      name: 'line-auth-callback',
+      component: LineAuthCallback,
     },
     {
       path: '/about',
