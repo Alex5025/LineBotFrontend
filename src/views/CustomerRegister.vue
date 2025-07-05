@@ -45,8 +45,17 @@ const checkLineVerification = () => {
 }
 
 const initiateLineLogin = () => {
-  // LINE Login URL
+  // 檢查是否有設定 Channel ID
   const clientId = 'YOUR_LINE_CHANNEL_ID' // 請替換為您的 LINE Channel ID
+
+  if (clientId === 'YOUR_LINE_CHANNEL_ID') {
+    // 開發測試模式 - 模擬 LINE 驗證成功
+    if (confirm('目前為測試模式，是否模擬 LINE 驗證成功？')) {
+      simulateLineVerification()
+      return
+    }
+  }
+
   const redirectUri = encodeURIComponent(`${window.location.origin}/auth/line/callback`)
   const state = Math.random().toString(36).substring(7) // 生成隨機 state
   const scope = 'profile%20openid'
@@ -58,6 +67,36 @@ const initiateLineLogin = () => {
 
   // 跳轉到 LINE 登入頁面
   window.location.href = lineLoginUrl
+}
+
+// 模擬 LINE 驗證成功（用於開發測試）
+const simulateLineVerification = () => {
+  const userData = {
+    lineUserId: 'test_line_user_' + Date.now(),
+    displayName: '測試用戶',
+    pictureUrl: '',
+    verified: true,
+    verifiedAt: new Date().toISOString(),
+  }
+
+  localStorage.setItem('lineAuth', JSON.stringify(userData))
+
+  // 更新狀態
+  isLineVerified.value = true
+  lineUserData.value = userData
+
+  // 自動填入姓名
+  if (!form.name) {
+    form.name = userData.displayName
+  }
+}
+
+// 清除驗證狀態（用於測試）
+const clearLineVerification = () => {
+  localStorage.removeItem('lineAuth')
+  localStorage.removeItem('lineOAuthState')
+  isLineVerified.value = false
+  lineUserData.value = null
 }
 
 const form = reactive({
@@ -140,7 +179,7 @@ const validateForm = () => {
   }
 
   if (form.age < 1 || form.age > 120) {
-    errors.value.age = '年齡必須在1-120之間'
+    errors.value.age = '年齡必須在1-120之��'
   }
 
   if (form.height < 1 || form.height > 300) {
@@ -206,7 +245,7 @@ const goBack = () => {
     <div v-if="showSuccessMessage" class="success-overlay">
       <div class="success-modal">
         <div class="success-icon">✅</div>
-        <h2>註冊成功！</h2>
+        <h2>註��成功！</h2>
         <p>感謝您的註冊，我們會盡快與您聯繫。</p>
         <p class="redirect-info">3秒後自動返回首頁...</p>
         <button @click="goBack" class="go-back-btn">立即返回</button>
@@ -240,6 +279,14 @@ const goBack = () => {
           <div class="verification-note">
             <small>這將會跳轉到 LINE 官方頁面進行安全驗證</small>
           </div>
+
+          <!-- 開發測試按鈕 -->
+          <div class="dev-controls">
+            <small style="color: #666; display: block; margin: 1rem 0 0.5rem">開發測試功能：</small>
+            <button @click="simulateLineVerification" class="test-btn" type="button">
+              模擬驗證成功
+            </button>
+          </div>
         </div>
       </div>
 
@@ -251,6 +298,9 @@ const goBack = () => {
           <span v-if="lineUserData?.displayName" class="user-name">
             歡迎，{{ lineUserData.displayName }}
           </span>
+          <button @click="clearLineVerification" class="clear-verification-btn" type="button">
+            重新驗證
+          </button>
         </div>
       </div>
 
@@ -605,6 +655,43 @@ const goBack = () => {
   color: var(--color-text);
   opacity: 0.8;
   font-size: 0.9rem;
+}
+
+.dev-controls {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.test-btn {
+  background: #f59e0b;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.test-btn:hover {
+  background: #d97706;
+}
+
+.clear-verification-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-left: 1rem;
+  transition: all 0.2s ease;
+}
+
+.clear-verification-btn:hover {
+  background: #dc2626;
 }
 
 .register-header {
