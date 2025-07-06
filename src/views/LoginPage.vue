@@ -26,19 +26,25 @@ const mockUsers = {
 
 const handleLogin = async () => {
   isLoading.value = true
+  console.log('開始登入流程:', selectedRole.value)
 
   try {
     // 模擬登入延遲
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     const userData = mockUsers[selectedRole.value]
+    console.log('用���資料:', userData)
 
     if (selectedRole.value === 'owner') {
       authStore.loginAsOwner(userData)
-      router.push('/owner')
+      console.log('業主登入完成，準備跳轉到 /owner')
+      await router.push('/owner')
+      console.log('跳轉完成')
     } else {
       authStore.loginAsCustomer(userData)
-      router.push('/customer')
+      console.log('顧客登入完成，準備跳轉到 /customer')
+      await router.push('/customer')
+      console.log('跳轉完成')
     }
   } catch (error) {
     console.error('登入失敗:', error)

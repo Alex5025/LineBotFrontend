@@ -33,6 +33,7 @@ export const useAuthStore = defineStore('auth', () => {
     currentUser.value = user
     isAuthenticated.value = true
     localStorage.setItem('currentUser', JSON.stringify(user))
+    console.log('業主登入成功:', user)
   }
 
   // 登入顧客
@@ -45,6 +46,7 @@ export const useAuthStore = defineStore('auth', () => {
     currentUser.value = user
     isAuthenticated.value = true
     localStorage.setItem('currentUser', JSON.stringify(user))
+    console.log('顧客登入成功:', user)
   }
 
   // 登出
