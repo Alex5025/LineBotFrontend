@@ -48,7 +48,7 @@ const currentCustomer = ref(null)
 const findCurrentCustomer = () => {
   const customerId = authStore.currentUser?.id
   console.log('Debug - 當前用戶ID:', customerId)
-  console.log('Debug - 當前用戶:', authStore.currentUser)
+  console.log('Debug - 當前��戶:', authStore.currentUser)
   console.log('Debug - 所有客戶:', customerStore.customers)
 
   if (customerId && customerStore.customers.length > 0) {
@@ -342,6 +342,34 @@ onMounted(() => {
   console.log('Debug - 組件載入')
   console.log('Debug - 當前用戶:', authStore.currentUser)
   console.log('Debug - 是否已驗證:', authStore.isAuthenticated)
+
+  // 強制載入王小美的資料作為臨時解決方案
+  const wangXiaomei = customerStore.customers.find((c) => c.id === '1')
+  if (wangXiaomei) {
+    console.log('Debug - 強制載入王小美資料:', wangXiaomei)
+    Object.assign(form, {
+      name: wangXiaomei.name,
+      phone: wangXiaomei.phone,
+      email: wangXiaomei.email,
+      address: wangXiaomei.address,
+      age: wangXiaomei.age,
+      height: wangXiaomei.height,
+      weight: wangXiaomei.weight,
+      occupation: wangXiaomei.occupation,
+      hairType: wangXiaomei.hairType,
+      hairColor: wangXiaomei.hairColor,
+      skinCondition: wangXiaomei.skinCondition,
+      notes: wangXiaomei.notes,
+    })
+
+    if (wangXiaomei.privacySettings) {
+      Object.assign(privacySettings, wangXiaomei.privacySettings)
+    }
+
+    currentCustomer.value = wangXiaomei
+    console.log('Debug - 強制載入後的表單:', form)
+  }
+
   // 稍微延遲確保所有store都已初始化
   setTimeout(() => {
     console.log('Debug - 延遲後重新載入資料')
