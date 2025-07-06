@@ -902,6 +902,24 @@ onMounted(() => {
   font-size: 0.8rem;
 }
 
+.privacy-status {
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.privacy-status.public {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.privacy-status.private {
+  background: rgba(107, 114, 128, 0.1);
+  color: #6b7280;
+}
+
 .business-badge {
   padding: 0.3rem 0.8rem;
   border-radius: 12px;
