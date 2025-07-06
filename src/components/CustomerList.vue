@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useCustomerStore, type Customer } from '../stores/customer'
+import { useCustomerActivityStore } from '../stores/customerActivity'
 
 const emit = defineEmits<{
   edit: [customer: Customer]
 }>()
 
 const customerStore = useCustomerStore()
+const activityStore = useCustomerActivityStore()
 
 const businessTypeLabels = {
   beauty: '美容美體',
@@ -28,6 +30,23 @@ const formatDate = (date: Date) => {
     month: '2-digit',
     day: '2-digit',
   }).format(date)
+}
+
+const formatDateTime = (date: Date) => {
+  return new Intl.DateTimeFormat('zh-TW', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)
+}
+
+const getCustomerAppointments = (customerId: string) => {
+  return activityStore.getRecentAppointments(customerId, 2).value
+}
+
+const getUpcomingAppointments = (customerId: string) => {
+  return activityStore.getUpcomingAppointments(customerId, 1).value
 }
 
 const editCustomer = (customer: Customer) => {
@@ -137,6 +156,7 @@ const pageNumbers = computed(() => {
             <th>聯絡方式</th>
             <th>年齡/身高/體重</th>
             <th>業務類型</th>
+            <th>預約服務</th>
             <th>總消費</th>
             <th>最後拜訪</th>
             <th>操作</th>
@@ -165,6 +185,41 @@ const pageNumbers = computed(() => {
               <span class="business-badge" :class="customer.businessType">
                 {{ businessTypeLabels[customer.businessType] }}
               </span>
+            </td>
+            <td>
+              <div class="appointments-info">
+                <div
+                  v-if="getUpcomingAppointments(customer.id).length > 0"
+                  class="upcoming-appointment"
+                >
+                  <span class="appointment-status upcoming">即將到來</span>
+                  <div class="appointment-details">
+                    <div class="appointment-title">
+                      {{ getUpcomingAppointments(customer.id)[0].title }}
+                    </div>
+                    <div class="appointment-date">
+                      {{ formatDateTime(getUpcomingAppointments(customer.id)[0].date) }}
+                    </div>
+                  </div>
+                </div>
+                <div
+                  v-else-if="getCustomerAppointments(customer.id).length > 0"
+                  class="recent-appointment"
+                >
+                  <span class="appointment-status recent">最近服務</span>
+                  <div class="appointment-details">
+                    <div class="appointment-title">
+                      {{ getCustomerAppointments(customer.id)[0].title }}
+                    </div>
+                    <div class="appointment-date">
+                      {{ formatDateTime(getCustomerAppointments(customer.id)[0].date) }}
+                    </div>
+                  </div>
+                </div>
+                <div v-else class="no-appointments">
+                  <span class="appointment-status none">暫無預約</span>
+                </div>
+              </div>
             </td>
             <td>
               <strong class="amount">{{ formatCurrency(customer.totalSpent) }}</strong>
@@ -223,6 +278,43 @@ const pageNumbers = computed(() => {
           <div class="info-row">
             <span class="label">職業：</span>
             <span>{{ customer.occupation }}</span>
+          </div>
+
+          <div class="info-row">
+            <span class="label">預約服務：</span>
+            <div class="appointments-mobile">
+              <div
+                v-if="getUpcomingAppointments(customer.id).length > 0"
+                class="appointment-mobile upcoming"
+              >
+                <span class="status-badge upcoming">即將到來</span>
+                <div class="appointment-info">
+                  <div class="appointment-title">
+                    {{ getUpcomingAppointments(customer.id)[0].title }}
+                  </div>
+                  <div class="appointment-date">
+                    {{ formatDateTime(getUpcomingAppointments(customer.id)[0].date) }}
+                  </div>
+                </div>
+              </div>
+              <div
+                v-else-if="getCustomerAppointments(customer.id).length > 0"
+                class="appointment-mobile recent"
+              >
+                <span class="status-badge recent">最近服務</span>
+                <div class="appointment-info">
+                  <div class="appointment-title">
+                    {{ getCustomerAppointments(customer.id)[0].title }}
+                  </div>
+                  <div class="appointment-date">
+                    {{ formatDateTime(getCustomerAppointments(customer.id)[0].date) }}
+                  </div>
+                </div>
+              </div>
+              <div v-else class="appointment-mobile none">
+                <span class="status-badge none">暫無預約</span>
+              </div>
+            </div>
           </div>
 
           <div class="info-row">
@@ -604,6 +696,110 @@ const pageNumbers = computed(() => {
 .empty-state p {
   color: var(--color-text);
   opacity: 0.7;
+}
+
+/* 預約服務樣式 */
+.appointments-info {
+  font-size: 0.85rem;
+  min-width: 150px;
+}
+
+.upcoming-appointment,
+.recent-appointment,
+.no-appointments {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.appointment-status {
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+  width: fit-content;
+}
+
+.appointment-status.upcoming {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.appointment-status.recent {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.appointment-status.none {
+  background: rgba(156, 163, 175, 0.1);
+  color: #9ca3af;
+}
+
+.appointment-details {
+  margin-top: 0.2rem;
+}
+
+.appointment-title {
+  font-weight: 500;
+  color: var(--color-heading);
+  font-size: 0.8rem;
+  margin-bottom: 0.1rem;
+}
+
+.appointment-date {
+  color: var(--color-text);
+  opacity: 0.7;
+  font-size: 0.75rem;
+}
+
+/* 手機版預約資訊樣式 */
+.appointments-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.appointment-mobile {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.status-badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.status-badge.upcoming {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.status-badge.recent {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.status-badge.none {
+  background: rgba(156, 163, 175, 0.1);
+  color: #9ca3af;
+}
+
+.appointment-info {
+  flex: 1;
+}
+
+.appointment-mobile .appointment-title {
+  font-size: 0.85rem;
+  margin-bottom: 0.1rem;
+}
+
+.appointment-mobile .appointment-date {
+  font-size: 0.75rem;
 }
 
 .desktop-only {
