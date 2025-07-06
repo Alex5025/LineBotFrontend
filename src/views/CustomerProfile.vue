@@ -44,11 +44,7 @@ const errors = ref<Record<string, string>>({})
 // 獲取當前登入的客戶資料
 const currentCustomer = computed(() => {
   const customerId = authStore.currentUser?.id
-  console.log('尋找客戶ID:', customerId)
-  console.log('可用客戶:', customerStore.customers)
-  const customer = customerStore.customers.find((customer) => customer.id === customerId)
-  console.log('找到的客戶:', customer)
-  return customer
+  return customerStore.customers.find((customer) => customer.id === customerId)
 })
 
 // 髮質選項
@@ -92,7 +88,6 @@ const skinConditions = [
 
 // 載入客戶資料
 const loadCustomerData = () => {
-  console.log('載入客戶資料，當前客戶:', currentCustomer.value)
   if (currentCustomer.value) {
     Object.assign(form, {
       name: currentCustomer.value.name || '',
@@ -128,10 +123,6 @@ const loadCustomerData = () => {
         notes: false,
       })
     }
-    console.log('載入後的表單資料:', form)
-    console.log('載入後的隱私設定:', privacySettings)
-  } else {
-    console.log('找不到當前客戶資料')
   }
 }
 
@@ -172,15 +163,12 @@ const validateForm = () => {
 
 // 開始編輯
 const startEditing = () => {
-  console.log('開始編輯模式')
   loadCustomerData() // 先載入最新資料
   isEditing.value = true
-  console.log('編輯模式表單資料:', form)
 }
 
 // 取消編輯
 const cancelEditing = () => {
-  console.log('取消編輯模式')
   isEditing.value = false
   loadCustomerData() // 重新載入原始資料
   errors.value = {}
