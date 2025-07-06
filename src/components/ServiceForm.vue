@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue'
+import { reactive, watch } from 'vue'
 import { useServiceStore, type Service } from '../stores/service'
 
 interface Props {
@@ -29,6 +29,18 @@ const categories = [
   { value: 'fitness', label: '健身指導' },
 ]
 
+// 先宣告 resetForm，避免 watch 取用時尚未初始化
+const resetForm = () => {
+  Object.assign(form, {
+    name: '',
+    description: '',
+    price: 0,
+    duration: 60,
+    category: 'beauty' as const,
+    isActive: true,
+  })
+}
+
 watch(
   () => props.service,
   (service) => {
@@ -47,17 +59,6 @@ watch(
   },
   { immediate: true },
 )
-
-const resetForm = () => {
-  Object.assign(form, {
-    name: '',
-    description: '',
-    price: 0,
-    duration: 60,
-    category: 'beauty' as const,
-    isActive: true,
-  })
-}
 
 const submitForm = () => {
   if (props.service) {

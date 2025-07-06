@@ -13,9 +13,8 @@ const selectedMonth = ref(currentDate.value.getMonth() + 1)
 const customerId = computed(() => authStore.currentUser?.id || 'customer_1')
 
 // 獲取當月活動和統計
-const monthlyActivities = computed(() =>
-  activityStore.getActivitiesByMonth(customerId.value, selectedYear.value, selectedMonth.value),
-)
+const monthlyActivitiesRef = activityStore.getActivitiesByMonth(customerId.value, selectedYear.value, selectedMonth.value)
+const monthlyActivities = computed(() => (monthlyActivitiesRef.value || []).filter(Boolean))
 
 const monthlyStats = computed(() =>
   activityStore.getMonthlyStats(customerId.value, selectedYear.value, selectedMonth.value),
@@ -171,7 +170,7 @@ const monthNames = [
       <div class="stat-card">
         <div class="stat-icon">💰</div>
         <div class="stat-info">
-          <div class="stat-value">{{ formatCurrency(monthlyStats.totalSpent) }}</div>
+          <div class="stat-value">{{ formatCurrency(monthlyStats.value.totalSpent) }}</div>
           <div class="stat-label">本月消費</div>
         </div>
       </div>
@@ -179,7 +178,7 @@ const monthNames = [
       <div class="stat-card">
         <div class="stat-icon">✨</div>
         <div class="stat-info">
-          <div class="stat-value">{{ monthlyStats.serviceCount }}</div>
+          <div class="stat-value">{{ monthlyStats.value.serviceCount }}</div>
           <div class="stat-label">完成服務</div>
         </div>
       </div>
@@ -187,7 +186,7 @@ const monthNames = [
       <div class="stat-card">
         <div class="stat-icon">📅</div>
         <div class="stat-info">
-          <div class="stat-value">{{ monthlyStats.appointmentCount }}</div>
+          <div class="stat-value">{{ monthlyStats.value.appointmentCount }}</div>
           <div class="stat-label">預約次數</div>
         </div>
       </div>
@@ -195,7 +194,7 @@ const monthNames = [
       <div class="stat-card">
         <div class="stat-icon">📋</div>
         <div class="stat-info">
-          <div class="stat-value">{{ monthlyStats.totalActivities }}</div>
+          <div class="stat-value">{{ monthlyStats.value.totalActivities }}</div>
           <div class="stat-label">總活動數</div>
         </div>
       </div>
@@ -244,12 +243,12 @@ const monthNames = [
     <div class="upcoming-appointments">
       <div class="section-header">
         <h3>即將到來的預約服務</h3>
-        <span v-if="upcomingAppointments.length > 0" class="appointment-count">
-          {{ upcomingAppointments.length }} 個預約
+        <span v-if="upcomingAppointments.value.length > 0" class="appointment-count">
+          {{ upcomingAppointments.value.length }} 個預約
         </span>
       </div>
 
-      <div v-if="upcomingAppointments.length === 0" class="empty-appointments">
+      <div v-if="upcomingAppointments.value.length === 0" class="empty-appointments">
         <div class="empty-icon">📅</div>
         <h4>目前沒有預約</h4>
         <p>您目前沒有即將到來的服務預約</p>
@@ -257,7 +256,7 @@ const monthNames = [
 
       <div v-else class="appointments-list">
         <div
-          v-for="appointment in upcomingAppointments"
+          v-for="appointment in upcomingAppointments.value"
           :key="appointment.id"
           class="appointment-card"
         >
@@ -292,7 +291,7 @@ const monthNames = [
       <h3>最近預約記錄</h3>
       <div class="recent-list">
         <div
-          v-for="appointment in recentAppointments"
+          v-for="appointment in recentAppointments.value"
           :key="appointment.id"
           class="recent-appointment-item"
         >
@@ -322,7 +321,7 @@ const monthNames = [
     <div class="recent-activities">
       <h3>最近活動</h3>
       <div class="recent-list">
-        <div v-for="activity in recentActivities" :key="activity.id" class="recent-item">
+        <div v-for="activity in recentActivities.value" :key="activity.id" class="recent-item">
           <div class="recent-icon">{{ getActivityTypeIcon(activity.type) }}</div>
           <div class="recent-content">
             <div class="recent-title">{{ activity.title }}</div>

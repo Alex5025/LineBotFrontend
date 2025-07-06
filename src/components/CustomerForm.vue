@@ -69,10 +69,30 @@ const skinConditions = [
   '混合性肌膚',
   '敏感性肌膚',
   '正常肌膚',
-  '痘痘���',
+  '痘痘肌',
   '老化肌膚',
   '色素沉澱',
 ]
+
+// 先宣告 resetForm，避免 watch 取用時尚未初始化
+const resetForm = () => {
+  Object.assign(form, {
+    name: '',
+    phone: '',
+    email: '',
+    address: '',
+    age: 0,
+    height: 0,
+    weight: 0,
+    occupation: '',
+    hairType: '',
+    hairColor: '',
+    skinCondition: '',
+    businessType: 'beauty' as const,
+    notes: '',
+  })
+  errors.value = {}
+}
 
 // 監聽 props 變化，用於編輯模式
 watch(
@@ -100,25 +120,6 @@ watch(
   },
   { immediate: true },
 )
-
-const resetForm = () => {
-  Object.assign(form, {
-    name: '',
-    phone: '',
-    email: '',
-    address: '',
-    age: 0,
-    height: 0,
-    weight: 0,
-    occupation: '',
-    hairType: '',
-    hairColor: '',
-    skinCondition: '',
-    businessType: 'beauty' as const,
-    notes: '',
-  })
-  errors.value = {}
-}
 
 const validateForm = () => {
   errors.value = {}
