@@ -44,7 +44,12 @@ const errors = ref<Record<string, string>>({})
 // 獲取當前登入的客戶資料
 const currentCustomer = computed(() => {
   const customerId = authStore.currentUser?.id
-  return customerStore.customers.find((customer) => customer.id === customerId)
+  console.log('Debug - 當前用戶ID:', customerId)
+  console.log('Debug - 當前用戶:', authStore.currentUser)
+  console.log('Debug - 所有客戶:', customerStore.customers)
+  const customer = customerStore.customers.find((customer) => customer.id === customerId)
+  console.log('Debug - 找到的客戶:', customer)
+  return customer
 })
 
 // 髮質選項
@@ -88,8 +93,12 @@ const skinConditions = [
 
 // 載入客戶資料
 const loadCustomerData = () => {
+  console.log('Debug - 開始載入客戶資料')
+  console.log('Debug - currentCustomer.value:', currentCustomer.value)
+
   if (currentCustomer.value) {
-    Object.assign(form, {
+    console.log('Debug - 找到客戶資料，開始填入表單')
+    const customerData = {
       name: currentCustomer.value.name || '',
       phone: currentCustomer.value.phone || '',
       email: currentCustomer.value.email || '',
@@ -102,13 +111,18 @@ const loadCustomerData = () => {
       hairColor: currentCustomer.value.hairColor || '',
       skinCondition: currentCustomer.value.skinCondition || '',
       notes: currentCustomer.value.notes || '',
-    })
+    }
+    console.log('Debug - 要填入的客戶資料:', customerData)
+
+    Object.assign(form, customerData)
+    console.log('Debug - 填入後的表單:', form)
 
     if (currentCustomer.value.privacySettings) {
       Object.assign(privacySettings, currentCustomer.value.privacySettings)
+      console.log('Debug - 載入現有隱私設定:', currentCustomer.value.privacySettings)
     } else {
       // 如果沒有隱私設定，使用預設值
-      Object.assign(privacySettings, {
+      const defaultPrivacy = {
         name: true,
         phone: false,
         email: false,
@@ -121,8 +135,12 @@ const loadCustomerData = () => {
         hairColor: true,
         skinCondition: true,
         notes: false,
-      })
+      }
+      Object.assign(privacySettings, defaultPrivacy)
+      console.log('Debug - 使用預設隱私設定:', defaultPrivacy)
     }
+  } else {
+    console.log('Debug - 找不到客戶資料！')
   }
 }
 
