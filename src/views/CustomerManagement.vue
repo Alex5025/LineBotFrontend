@@ -1,26 +1,40 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useCustomerStore } from '../stores/customer'
 import CustomerForm from '../components/CustomerForm.vue'
 import CustomerList from '../components/CustomerList.vue'
+import AppointmentForm from '../components/AppointmentForm.vue'
 
 const customerStore = useCustomerStore()
 const showAddForm = ref(false)
+const showAppointmentForm = ref(false)
 const selectedCustomer = ref(null)
 
 const toggleAddForm = () => {
   showAddForm.value = !showAddForm.value
+  showAppointmentForm.value = false
+  selectedCustomer.value = null
+}
+
+const toggleAppointmentForm = () => {
+  showAppointmentForm.value = !showAppointmentForm.value
+  showAddForm.value = false
   selectedCustomer.value = null
 }
 
 const editCustomer = (customer: any) => {
   selectedCustomer.value = customer
   showAddForm.value = true
+  showAppointmentForm.value = false
 }
 
 const onFormSubmit = () => {
   showAddForm.value = false
   selectedCustomer.value = null
+}
+
+const onAppointmentSubmit = () => {
+  showAppointmentForm.value = false
 }
 </script>
 
@@ -29,7 +43,7 @@ const onFormSubmit = () => {
     <div class="page-header">
       <div class="header-content">
         <h1>客戶管理</h1>
-        <p>管理您的客戶資料，追蹤客戶資訊與服務紀錄</p>
+        <p>管理您的客戶��料，追蹤客戶資訊與服務紀錄</p>
       </div>
       <div class="header-buttons">
         <button @click="toggleAppointmentForm" class="add-appointment-btn">
