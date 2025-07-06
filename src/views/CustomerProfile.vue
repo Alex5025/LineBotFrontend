@@ -42,15 +42,23 @@ const privacySettings = reactive<CustomerPrivacySettings>({
 const errors = ref<Record<string, string>>({})
 
 // 獲取當前登入的客戶資料
-const currentCustomer = computed(() => {
+const currentCustomer = ref(null)
+
+// 主動尋找客戶資料的函數
+const findCurrentCustomer = () => {
   const customerId = authStore.currentUser?.id
   console.log('Debug - 當前用戶ID:', customerId)
   console.log('Debug - 當前用戶:', authStore.currentUser)
   console.log('Debug - 所有客戶:', customerStore.customers)
-  const customer = customerStore.customers.find((customer) => customer.id === customerId)
-  console.log('Debug - 找到的客戶:', customer)
-  return customer
-})
+
+  if (customerId) {
+    const customer = customerStore.customers.find((customer) => customer.id === customerId)
+    console.log('Debug - 找到的客戶:', customer)
+    currentCustomer.value = customer
+    return customer
+  }
+  return null
+}
 
 // 髮質選項
 const hairTypes = [
@@ -94,32 +102,35 @@ const skinConditions = [
 // 載入客戶資料
 const loadCustomerData = () => {
   console.log('Debug - 開始載入客戶資料')
-  console.log('Debug - currentCustomer.value:', currentCustomer.value)
 
-  if (currentCustomer.value) {
+  // 先尋找當前客戶
+  const customer = findCurrentCustomer()
+  console.log('Debug - findCurrentCustomer 結果:', customer)
+
+  if (customer) {
     console.log('Debug - 找到客戶資料，開始填入表單')
     const customerData = {
-      name: currentCustomer.value.name || '',
-      phone: currentCustomer.value.phone || '',
-      email: currentCustomer.value.email || '',
-      address: currentCustomer.value.address || '',
-      age: currentCustomer.value.age || 0,
-      height: currentCustomer.value.height || 0,
-      weight: currentCustomer.value.weight || 0,
-      occupation: currentCustomer.value.occupation || '',
-      hairType: currentCustomer.value.hairType || '',
-      hairColor: currentCustomer.value.hairColor || '',
-      skinCondition: currentCustomer.value.skinCondition || '',
-      notes: currentCustomer.value.notes || '',
+      name: customer.name || '',
+      phone: customer.phone || '',
+      email: customer.email || '',
+      address: customer.address || '',
+      age: customer.age || 0,
+      height: customer.height || 0,
+      weight: customer.weight || 0,
+      occupation: customer.occupation || '',
+      hairType: customer.hairType || '',
+      hairColor: customer.hairColor || '',
+      skinCondition: customer.skinCondition || '',
+      notes: customer.notes || '',
     }
-    console.log('Debug - 要填入的客戶資料:', customerData)
+    console.log('Debug - 要填入的客戶資���:', customerData)
 
     Object.assign(form, customerData)
     console.log('Debug - 填入後的表單:', form)
 
-    if (currentCustomer.value.privacySettings) {
-      Object.assign(privacySettings, currentCustomer.value.privacySettings)
-      console.log('Debug - 載入現有隱私設定:', currentCustomer.value.privacySettings)
+    if (customer.privacySettings) {
+      Object.assign(privacySettings, customer.privacySettings)
+      console.log('Debug - 載入現有隱私設定:', customer.privacySettings)
     } else {
       // 如果沒有隱私設定，使用預設值
       const defaultPrivacy = {
@@ -141,6 +152,8 @@ const loadCustomerData = () => {
     }
   } else {
     console.log('Debug - 找不到客戶資料！')
+    console.log('Debug - authStore.currentUser:', authStore.currentUser)
+    console.log('Debug - customerStore.customers:', customerStore.customers)
   }
 }
 
@@ -261,13 +274,26 @@ const businessTypeLabels = {
   fitness: '健身指導',
 }
 
-// 監聽當前客戶變化
+// 監聽auth store的變化
 watch(
-  currentCustomer,
-  (newCustomer, oldCustomer) => {
-    console.log('Debug - 客戶資料變化:', { newCustomer, oldCustomer })
-    if (newCustomer) {
-      console.log('Debug - 客戶資料變化，重新載入資料')
+  () => authStore.currentUser,
+  (newUser) => {
+    console.log('Debug - 用戶變化:', newUser)
+    if (newUser) {
+      console.log('Debug - 用戶變化，重新載入資料')
+      loadCustomerData()
+    }
+  },
+  { immediate: true },
+)
+
+// 監聽客戶store的變化
+watch(
+  () => customerStore.customers,
+  (newCustomers) => {
+    console.log('Debug - 客戶列表變化:', newCustomers)
+    if (newCustomers.length > 0 && authStore.currentUser) {
+      console.log('Debug - 客戶列表變化，重新載入資料')
       loadCustomerData()
     }
   },
@@ -307,7 +333,7 @@ onMounted(() => {
         <div v-else class="editing-actions">
           <button @click="cancelEditing" class="cancel-btn">取消</button>
           <button @click="saveProfile" :disabled="isSaving" class="save-btn">
-            <span v-if="isSaving">儲存中...</span>
+            <span v-if="isSaving">儲��中...</span>
             <span v-else>儲存</span>
           </button>
         </div>
