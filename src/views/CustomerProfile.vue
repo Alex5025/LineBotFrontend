@@ -66,7 +66,7 @@ const hairColors = [
   '棕色',
   '咖啡色',
   '金色',
-  '亞���色',
+  '亞麻色',
   '栗色',
   '紅色',
   '紫色',
@@ -180,7 +180,7 @@ const saveProfile = async () => {
     isEditing.value = false
     errors.value = {}
   } catch (error) {
-    console.error('���存失敗:', error)
+    console.error('儲存失敗:', error)
   } finally {
     isSaving.value = false
   }
@@ -261,7 +261,17 @@ onMounted(() => {
         <div class="info-grid">
           <!-- 姓名 -->
           <div class="info-item">
-            <label>姓名</label>
+            <div class="field-header">
+              <label>姓名</label>
+              <label v-if="isEditing" class="privacy-toggle">
+                <input
+                  v-model="privacySettings.name"
+                  type="checkbox"
+                  class="privacy-checkbox-inline"
+                />
+                <span class="privacy-label-inline">對外公開</span>
+              </label>
+            </div>
             <input
               v-if="isEditing"
               v-model="form.name"
@@ -269,13 +279,29 @@ onMounted(() => {
               :class="{ error: errors.name }"
               placeholder="請輸入姓名"
             />
-            <span v-else class="value">{{ currentCustomer?.name }}</span>
+            <div v-else class="value-with-privacy">
+              <span class="value">{{ currentCustomer?.name }}</span>
+              <span v-if="currentCustomer?.privacySettings?.name" class="privacy-status public"
+                >對外公開</span
+              >
+              <span v-else class="privacy-status private">僅自己可見</span>
+            </div>
             <span v-if="errors.name" class="error-message">{{ errors.name }}</span>
           </div>
 
           <!-- 電話 -->
           <div class="info-item">
-            <label>電話</label>
+            <div class="field-header">
+              <label>電話</label>
+              <label v-if="isEditing" class="privacy-toggle">
+                <input
+                  v-model="privacySettings.phone"
+                  type="checkbox"
+                  class="privacy-checkbox-inline"
+                />
+                <span class="privacy-label-inline">對外公開</span>
+              </label>
+            </div>
             <input
               v-if="isEditing"
               v-model="form.phone"
@@ -283,13 +309,29 @@ onMounted(() => {
               :class="{ error: errors.phone }"
               placeholder="0912-345-678"
             />
-            <span v-else class="value">{{ currentCustomer?.phone }}</span>
+            <div v-else class="value-with-privacy">
+              <span class="value">{{ currentCustomer?.phone }}</span>
+              <span v-if="currentCustomer?.privacySettings?.phone" class="privacy-status public"
+                >對外公開</span
+              >
+              <span v-else class="privacy-status private">僅自己可見</span>
+            </div>
             <span v-if="errors.phone" class="error-message">{{ errors.phone }}</span>
           </div>
 
           <!-- Email -->
           <div class="info-item">
-            <label>Email</label>
+            <div class="field-header">
+              <label>Email</label>
+              <label v-if="isEditing" class="privacy-toggle">
+                <input
+                  v-model="privacySettings.email"
+                  type="checkbox"
+                  class="privacy-checkbox-inline"
+                />
+                <span class="privacy-label-inline">對外公開</span>
+              </label>
+            </div>
             <input
               v-if="isEditing"
               v-model="form.email"
@@ -297,20 +339,42 @@ onMounted(() => {
               :class="{ error: errors.email }"
               placeholder="example@email.com"
             />
-            <span v-else class="value">{{ currentCustomer?.email }}</span>
+            <div v-else class="value-with-privacy">
+              <span class="value">{{ currentCustomer?.email }}</span>
+              <span v-if="currentCustomer?.privacySettings?.email" class="privacy-status public"
+                >對外公開</span
+              >
+              <span v-else class="privacy-status private">僅自己可見</span>
+            </div>
             <span v-if="errors.email" class="error-message">{{ errors.email }}</span>
           </div>
 
           <!-- 地址 -->
           <div class="info-item full-width">
-            <label>地址</label>
+            <div class="field-header">
+              <label>地址</label>
+              <label v-if="isEditing" class="privacy-toggle">
+                <input
+                  v-model="privacySettings.address"
+                  type="checkbox"
+                  class="privacy-checkbox-inline"
+                />
+                <span class="privacy-label-inline">對外公開</span>
+              </label>
+            </div>
             <input
               v-if="isEditing"
               v-model="form.address"
               type="text"
               placeholder="請輸入完整地址"
             />
-            <span v-else class="value">{{ currentCustomer?.address }}</span>
+            <div v-else class="value-with-privacy">
+              <span class="value">{{ currentCustomer?.address }}</span>
+              <span v-if="currentCustomer?.privacySettings?.address" class="privacy-status public"
+                >對外公開</span
+              >
+              <span v-else class="privacy-status private">僅自己可見</span>
+            </div>
           </div>
         </div>
       </div>
@@ -321,7 +385,17 @@ onMounted(() => {
         <div class="info-grid">
           <!-- 年齡 -->
           <div class="info-item">
-            <label>年齡</label>
+            <div class="field-header">
+              <label>年齡</label>
+              <label v-if="isEditing" class="privacy-toggle">
+                <input
+                  v-model="privacySettings.age"
+                  type="checkbox"
+                  class="privacy-checkbox-inline"
+                />
+                <span class="privacy-label-inline">對外公開</span>
+              </label>
+            </div>
             <input
               v-if="isEditing"
               v-model.number="form.age"
@@ -331,13 +405,29 @@ onMounted(() => {
               :class="{ error: errors.age }"
               placeholder="25"
             />
-            <span v-else class="value">{{ currentCustomer?.age }} 歲</span>
+            <div v-else class="value-with-privacy">
+              <span class="value">{{ currentCustomer?.age }} 歲</span>
+              <span v-if="currentCustomer?.privacySettings?.age" class="privacy-status public"
+                >對外公開</span
+              >
+              <span v-else class="privacy-status private">僅自己可見</span>
+            </div>
             <span v-if="errors.age" class="error-message">{{ errors.age }}</span>
           </div>
 
           <!-- 身高 -->
           <div class="info-item">
-            <label>身高</label>
+            <div class="field-header">
+              <label>身高</label>
+              <label v-if="isEditing" class="privacy-toggle">
+                <input
+                  v-model="privacySettings.height"
+                  type="checkbox"
+                  class="privacy-checkbox-inline"
+                />
+                <span class="privacy-label-inline">對外公開</span>
+              </label>
+            </div>
             <input
               v-if="isEditing"
               v-model.number="form.height"
@@ -347,13 +437,29 @@ onMounted(() => {
               :class="{ error: errors.height }"
               placeholder="165"
             />
-            <span v-else class="value">{{ currentCustomer?.height }} cm</span>
+            <div v-else class="value-with-privacy">
+              <span class="value">{{ currentCustomer?.height }} cm</span>
+              <span v-if="currentCustomer?.privacySettings?.height" class="privacy-status public"
+                >對外公開</span
+              >
+              <span v-else class="privacy-status private">僅自己可見</span>
+            </div>
             <span v-if="errors.height" class="error-message">{{ errors.height }}</span>
           </div>
 
           <!-- 體重 -->
           <div class="info-item">
-            <label>體重</label>
+            <div class="field-header">
+              <label>體重</label>
+              <label v-if="isEditing" class="privacy-toggle">
+                <input
+                  v-model="privacySettings.weight"
+                  type="checkbox"
+                  class="privacy-checkbox-inline"
+                />
+                <span class="privacy-label-inline">對外公開</span>
+              </label>
+            </div>
             <input
               v-if="isEditing"
               v-model.number="form.weight"
@@ -363,20 +469,44 @@ onMounted(() => {
               :class="{ error: errors.weight }"
               placeholder="60"
             />
-            <span v-else class="value">{{ currentCustomer?.weight }} kg</span>
+            <div v-else class="value-with-privacy">
+              <span class="value">{{ currentCustomer?.weight }} kg</span>
+              <span v-if="currentCustomer?.privacySettings?.weight" class="privacy-status public"
+                >對外公開</span
+              >
+              <span v-else class="privacy-status private">僅自己可見</span>
+            </div>
             <span v-if="errors.weight" class="error-message">{{ errors.weight }}</span>
           </div>
 
           <!-- 職業 -->
           <div class="info-item">
-            <label>職業</label>
+            <div class="field-header">
+              <label>職業</label>
+              <label v-if="isEditing" class="privacy-toggle">
+                <input
+                  v-model="privacySettings.occupation"
+                  type="checkbox"
+                  class="privacy-checkbox-inline"
+                />
+                <span class="privacy-label-inline">對外公開</span>
+              </label>
+            </div>
             <input
               v-if="isEditing"
               v-model="form.occupation"
               type="text"
               placeholder="請輸入職業"
             />
-            <span v-else class="value">{{ currentCustomer?.occupation }}</span>
+            <div v-else class="value-with-privacy">
+              <span class="value">{{ currentCustomer?.occupation }}</span>
+              <span
+                v-if="currentCustomer?.privacySettings?.occupation"
+                class="privacy-status public"
+                >對外公開</span
+              >
+              <span v-else class="privacy-status private">僅自己可見</span>
+            </div>
           </div>
         </div>
       </div>
@@ -400,50 +530,116 @@ onMounted(() => {
 
           <!-- 髮質 -->
           <div class="info-item">
-            <label>髮質</label>
+            <div class="field-header">
+              <label>髮質</label>
+              <label v-if="isEditing" class="privacy-toggle">
+                <input
+                  v-model="privacySettings.hairType"
+                  type="checkbox"
+                  class="privacy-checkbox-inline"
+                />
+                <span class="privacy-label-inline">對外公開</span>
+              </label>
+            </div>
             <select v-if="isEditing" v-model="form.hairType">
               <option value="">請選擇髮質</option>
               <option v-for="type in hairTypes" :key="type" :value="type">
                 {{ type }}
               </option>
             </select>
-            <span v-else class="value">{{ currentCustomer?.hairType || '未設定' }}</span>
+            <div v-else class="value-with-privacy">
+              <span class="value">{{ currentCustomer?.hairType || '未設定' }}</span>
+              <span v-if="currentCustomer?.privacySettings?.hairType" class="privacy-status public"
+                >對外公開</span
+              >
+              <span v-else class="privacy-status private">僅自己可見</span>
+            </div>
           </div>
 
           <!-- 髮色 -->
           <div class="info-item">
-            <label>髮色</label>
+            <div class="field-header">
+              <label>髮色</label>
+              <label v-if="isEditing" class="privacy-toggle">
+                <input
+                  v-model="privacySettings.hairColor"
+                  type="checkbox"
+                  class="privacy-checkbox-inline"
+                />
+                <span class="privacy-label-inline">對外公開</span>
+              </label>
+            </div>
             <select v-if="isEditing" v-model="form.hairColor">
               <option value="">請選擇髮色</option>
               <option v-for="color in hairColors" :key="color" :value="color">
                 {{ color }}
               </option>
             </select>
-            <span v-else class="value">{{ currentCustomer?.hairColor || '未設定' }}</span>
+            <div v-else class="value-with-privacy">
+              <span class="value">{{ currentCustomer?.hairColor || '未設定' }}</span>
+              <span v-if="currentCustomer?.privacySettings?.hairColor" class="privacy-status public"
+                >對外公開</span
+              >
+              <span v-else class="privacy-status private">僅自己可見</span>
+            </div>
           </div>
 
           <!-- 膚質狀況 -->
           <div class="info-item">
-            <label>膚質狀況</label>
+            <div class="field-header">
+              <label>膚質狀況</label>
+              <label v-if="isEditing" class="privacy-toggle">
+                <input
+                  v-model="privacySettings.skinCondition"
+                  type="checkbox"
+                  class="privacy-checkbox-inline"
+                />
+                <span class="privacy-label-inline">對外公開</span>
+              </label>
+            </div>
             <select v-if="isEditing" v-model="form.skinCondition">
               <option value="">請選擇膚質</option>
               <option v-for="condition in skinConditions" :key="condition" :value="condition">
                 {{ condition }}
               </option>
             </select>
-            <span v-else class="value">{{ currentCustomer?.skinCondition || '未設定' }}</span>
+            <div v-else class="value-with-privacy">
+              <span class="value">{{ currentCustomer?.skinCondition || '未設定' }}</span>
+              <span
+                v-if="currentCustomer?.privacySettings?.skinCondition"
+                class="privacy-status public"
+                >對外公開</span
+              >
+              <span v-else class="privacy-status private">僅自己可見</span>
+            </div>
           </div>
 
           <!-- 備註 -->
           <div class="info-item full-width">
-            <label>備註</label>
+            <div class="field-header">
+              <label>備註</label>
+              <label v-if="isEditing" class="privacy-toggle">
+                <input
+                  v-model="privacySettings.notes"
+                  type="checkbox"
+                  class="privacy-checkbox-inline"
+                />
+                <span class="privacy-label-inline">對外公開</span>
+              </label>
+            </div>
             <textarea
               v-if="isEditing"
               v-model="form.notes"
               rows="3"
               placeholder="特殊需求、過敏史、偏好等..."
             ></textarea>
-            <span v-else class="value">{{ currentCustomer?.notes || '無備註' }}</span>
+            <div v-else class="value-with-privacy">
+              <span class="value">{{ currentCustomer?.notes || '無備註' }}</span>
+              <span v-if="currentCustomer?.privacySettings?.notes" class="privacy-status public"
+                >對外公開</span
+              >
+              <span v-else class="privacy-status private">僅自己可見</span>
+            </div>
           </div>
         </div>
       </div>
@@ -465,45 +661,23 @@ onMounted(() => {
             </span>
           </div>
           <div class="stat-item">
-            <span class="stat-label">總���費金額</span>
+            <span class="stat-label">總消費金額</span>
             <span class="stat-value">{{ formatCurrency(currentCustomer?.totalSpent || 0) }}</span>
           </div>
         </div>
       </div>
 
-      <!-- 隱私設定區塊 -->
-      <div class="privacy-section">
-        <div class="section-header">
-          <h2>隱私設定</h2>
-          <p>選擇您希望向服務人員公開的個人資訊</p>
-        </div>
-
-        <div class="privacy-grid">
-          <div v-for="(label, key) in privacyLabels" :key="key" class="privacy-item">
-            <label class="privacy-label">
-              <input
-                v-model="privacySettings[key]"
-                type="checkbox"
-                :disabled="!isEditing"
-                class="privacy-checkbox"
-              />
-              <span class="checkmark"></span>
-              <span class="label-text">{{ label }}</span>
-              <span v-if="privacySettings[key]" class="visibility-status public">對外公開</span>
-              <span v-else class="visibility-status private">僅自己可見</span>
-            </label>
-          </div>
-        </div>
-
+      <!-- 隱私說明 -->
+      <div class="privacy-note-section">
         <div class="privacy-note">
           <div class="note-icon">🔒</div>
           <div class="note-text">
-            <p><strong>隱私說明：</strong></p>
+            <p><strong>隱私設定說明：</strong></p>
             <ul>
-              <li>勾選的項目將對服務人員可見，有助於提供更好的服務</li>
+              <li>每個欄位旁的「對外公開」選項可控制該資訊是否對服務人員可見</li>
+              <li>勾選的項目將對服務人員公開，有助於提供更好的服務</li>
               <li>未勾選的項目僅您自己可以看到</li>
-              <li>您可以隨時修改這些設定</li>
-              <li>姓名和主要服務類型始終對服務人員可見</li>
+              <li>您可以隨時修改這些隱私設定</li>
             </ul>
           </div>
         </div>
@@ -642,6 +816,49 @@ onMounted(() => {
   grid-column: 1 / -1;
 }
 
+.field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.field-header label {
+  font-weight: 500;
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
+
+.privacy-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--color-text);
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+.privacy-checkbox-inline {
+  width: 16px;
+  height: 16px;
+  accent-color: #10b981;
+  cursor: pointer;
+}
+
+.privacy-label-inline {
+  white-space: nowrap;
+  font-weight: 400;
+}
+
+.value-with-privacy {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  min-height: 1.5rem;
+}
+
 .info-item label {
   font-weight: 500;
   color: var(--color-text);
@@ -735,7 +952,7 @@ onMounted(() => {
   font-size: 1.1rem;
 }
 
-.privacy-section {
+.privacy-note-section {
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), rgba(16, 185, 129, 0.05));
   border: 1px solid rgba(139, 92, 246, 0.2);
   border-radius: 12px;
@@ -907,8 +1124,16 @@ onMounted(() => {
     grid-template-columns: 1fr;
   }
 
-  .privacy-grid {
-    grid-template-columns: 1fr;
+  .field-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .value-with-privacy {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
   }
 
   .privacy-note {
