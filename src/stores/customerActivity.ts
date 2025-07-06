@@ -18,7 +18,7 @@ export const useCustomerActivityStore = defineStore('customerActivity', () => {
   const activities = ref<CustomerActivity[]>([
     {
       id: '1',
-      customerId: 'customer_1',
+      customerId: '1',
       type: 'service',
       title: '深層清潔護膚',
       description: '90分鐘深層清潔護膚療程',
@@ -26,11 +26,11 @@ export const useCustomerActivityStore = defineStore('customerActivity', () => {
       date: new Date('2024-12-01'),
       status: 'completed',
       serviceId: 'service_1',
-      notes: '效果很好，皮膚變���更光滑',
+      notes: '效果很好，皮膚變得更光滑',
     },
     {
       id: '2',
-      customerId: 'customer_1',
+      customerId: '1',
       type: 'appointment',
       title: '深層保濕護膚',
       description: '90分鐘深層保濕護膚療程',
@@ -42,7 +42,7 @@ export const useCustomerActivityStore = defineStore('customerActivity', () => {
     },
     {
       id: '6',
-      customerId: 'customer_1',
+      customerId: '1',
       type: 'appointment',
       title: '精油SPA按摩',
       description: '120分鐘全身精油放鬆按摩',
@@ -54,7 +54,7 @@ export const useCustomerActivityStore = defineStore('customerActivity', () => {
     },
     {
       id: '7',
-      customerId: 'customer_1',
+      customerId: '1',
       type: 'appointment',
       title: '臉部深層清潔',
       description: '60分鐘專業臉部清潔護理',
@@ -66,7 +66,7 @@ export const useCustomerActivityStore = defineStore('customerActivity', () => {
     },
     {
       id: '3',
-      customerId: 'customer_1',
+      customerId: '1',
       type: 'payment',
       title: '付款紀錄',
       description: '深層清潔護膚付款',
@@ -76,7 +76,7 @@ export const useCustomerActivityStore = defineStore('customerActivity', () => {
     },
     {
       id: '4',
-      customerId: 'customer_1',
+      customerId: '1',
       type: 'service',
       title: '精油按摩',
       description: '120分鐘全身精油按摩',
@@ -88,13 +88,37 @@ export const useCustomerActivityStore = defineStore('customerActivity', () => {
     },
     {
       id: '5',
-      customerId: 'customer_1',
+      customerId: '1',
       type: 'consultation',
       title: '膚質諮詢',
       description: '膚質分析和護膚建議',
       date: new Date('2024-11-10'),
       status: 'completed',
       notes: '建議使用保濕產品',
+    },
+    {
+      id: '8',
+      customerId: '2',
+      type: 'appointment',
+      title: '個人健身指導',
+      description: '60分鐘一對一健身訓練',
+      date: new Date('2024-12-18'),
+      status: 'scheduled',
+      serviceId: 'service_4',
+      amount: 1200,
+      notes: '專注下半身訓練',
+    },
+    {
+      id: '9',
+      customerId: '2',
+      type: 'service',
+      title: '體能評估',
+      description: '全面體能評估和訓練計畫制定',
+      amount: 800,
+      date: new Date('2024-12-05'),
+      status: 'completed',
+      serviceId: 'service_4',
+      notes: '體能狀況良好，可進行中強度訓練',
     },
   ])
 
