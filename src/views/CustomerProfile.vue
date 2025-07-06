@@ -285,10 +285,16 @@ onMounted(() => {
         <p>管理您的個人資訊和隱私設定</p>
       </div>
       <div class="header-actions">
-        <button v-if="!isEditing" @click="startEditing" class="edit-btn">
-          <span class="btn-icon">✏️</span>
-          編輯資料
-        </button>
+        <div v-if="!isEditing" class="header-btn-group">
+          <button @click="loadCustomerData" class="reload-btn">
+            <span class="btn-icon">🔄</span>
+            重新載入
+          </button>
+          <button @click="startEditing" class="edit-btn">
+            <span class="btn-icon">✏️</span>
+            編輯資料
+          </button>
+        </div>
         <div v-else class="editing-actions">
           <button @click="cancelEditing" class="cancel-btn">取消</button>
           <button @click="saveProfile" :disabled="isSaving" class="save-btn">
@@ -669,7 +675,7 @@ onMounted(() => {
                   type="checkbox"
                   class="privacy-checkbox-inline"
                 />
-                <span class="privacy-label-inline">對外公開</span>
+                <span class="privacy-label-inline">���外公開</span>
               </label>
             </div>
             <textarea
@@ -765,18 +771,37 @@ onMounted(() => {
   gap: 1rem;
 }
 
+.header-btn-group {
+  display: flex;
+  gap: 1rem;
+}
+
+.reload-btn,
 .edit-btn {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.8rem 1.5rem;
-  background: #8b5cf6;
-  color: white;
   border: none;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.reload-btn {
+  background: #10b981;
+  color: white;
+}
+
+.reload-btn:hover {
+  background: #059669;
+  transform: translateY(-2px);
+}
+
+.edit-btn {
+  background: #8b5cf6;
+  color: white;
 }
 
 .edit-btn:hover {
