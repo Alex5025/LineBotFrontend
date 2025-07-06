@@ -5,9 +5,12 @@ import { useAuthStore } from './stores/auth'
 const authStore = useAuthStore()
 const router = useRouter()
 
-const handleLogout = () => {
+const handleLogout = async () => {
+  console.log('執行登出')
   authStore.logout()
-  router.push('/login')
+  console.log('登出完成，跳轉到登入頁面')
+  await router.push('/login')
+  console.log('跳轉完成')
 }
 </script>
 

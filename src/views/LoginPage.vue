@@ -24,30 +24,51 @@ const mockUsers = {
   },
 }
 
-const handleLogin = async () => {
+const loginAsOwner = async () => {
+  if (isLoading.value) return
+
+  selectedRole.value = 'owner'
   isLoading.value = true
-  console.log('開始登入流程:', selectedRole.value)
+  console.log('開始業主登入流程')
 
   try {
     // 模擬登入延遲
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 800))
 
-    const userData = mockUsers[selectedRole.value]
-    console.log('用���資料:', userData)
+    const userData = mockUsers.owner
+    console.log('業主資料:', userData)
 
-    if (selectedRole.value === 'owner') {
-      authStore.loginAsOwner(userData)
-      console.log('業主登入完成，準備跳轉到 /owner')
-      await router.push('/owner')
-      console.log('跳轉完成')
-    } else {
-      authStore.loginAsCustomer(userData)
-      console.log('顧客登入完成，準備跳轉到 /customer')
-      await router.push('/customer')
-      console.log('跳轉完成')
-    }
+    authStore.loginAsOwner(userData)
+    console.log('業主登入完成，準備跳轉到 /owner')
+    await router.push('/owner')
+    console.log('跳轉完成')
   } catch (error) {
-    console.error('登入失敗:', error)
+    console.error('業主登入失敗:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const loginAsCustomer = async () => {
+  if (isLoading.value) return
+
+  selectedRole.value = 'customer'
+  isLoading.value = true
+  console.log('開始顧客登入流程')
+
+  try {
+    // 模擬登入延遲
+    await new Promise((resolve) => setTimeout(resolve, 800))
+
+    const userData = mockUsers.customer
+    console.log('顧客資料:', userData)
+
+    authStore.loginAsCustomer(userData)
+    console.log('顧客登入完成，準備跳轉到 /customer')
+    await router.push('/customer')
+    console.log('跳轉完成')
+  } catch (error) {
+    console.error('顧客登入失敗:', error)
   } finally {
     isLoading.value = false
   }
@@ -70,33 +91,36 @@ const goToCustomerRegister = () => {
       <div class="role-selection">
         <h2>選擇登入身份</h2>
         <div class="role-cards">
-          <label :class="['role-card', { selected: selectedRole === 'owner' }]">
-            <input v-model="selectedRole" type="radio" value="owner" name="role" />
+          <div @click="loginAsOwner" :class="['role-card', { selected: selectedRole === 'owner' }]">
             <div class="role-icon">👨‍💼</div>
             <div class="role-info">
               <h3>業主登入</h3>
               <p>管理客戶、服務與財務</p>
             </div>
-          </label>
+            <div v-if="isLoading && selectedRole === 'owner'" class="loading-indicator">
+              登入中...
+            </div>
+          </div>
 
-          <label :class="['role-card', { selected: selectedRole === 'customer' }]">
-            <input v-model="selectedRole" type="radio" value="customer" name="role" />
+          <div
+            @click="loginAsCustomer"
+            :class="['role-card', { selected: selectedRole === 'customer' }]"
+          >
             <div class="role-icon">👤</div>
             <div class="role-info">
               <h3>顧客登入</h3>
               <p>查看個人活動紀錄</p>
             </div>
-          </label>
+            <div v-if="isLoading && selectedRole === 'customer'" class="loading-indicator">
+              登入中...
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="login-actions">
-        <button @click="handleLogin" :disabled="isLoading" class="login-btn">
-          {{ isLoading ? '登入中...' : '登入系統' }}
-        </button>
-
+      <div class="register-section">
         <div class="divider">
-          <span>或</span>
+          <span>還沒有帳戶？</span>
         </div>
 
         <button @click="goToCustomerRegister" class="register-btn">新顧客註冊</button>
@@ -182,26 +206,52 @@ const goToCustomerRegister = () => {
   border-radius: 12px;
   padding: 1.5rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   gap: 1rem;
   position: relative;
-}
-
-.role-card input {
-  position: absolute;
-  opacity: 0;
+  user-select: none;
 }
 
 .role-card:hover {
   border-color: #8b5cf6;
-  transform: translateY(-2px);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.2);
+}
+
+.role-card:active {
+  transform: translateY(-2px) scale(1.01);
 }
 
 .role-card.selected {
   border-color: #8b5cf6;
-  background: rgba(139, 92, 246, 0.1);
+  background: rgba(139, 92, 246, 0.15);
+  transform: translateY(-2px);
+}
+
+.loading-indicator {
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  background: #8b5cf6;
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 .role-icon {
@@ -221,32 +271,10 @@ const goToCustomerRegister = () => {
   font-size: 0.9rem;
 }
 
-.login-actions {
+.register-section {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-
-.login-btn {
-  background: #8b5cf6;
-  color: white;
-  border: none;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.login-btn:hover:not(:disabled) {
-  background: #7c3aed;
-  transform: translateY(-2px);
-}
-
-.login-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 .divider {
