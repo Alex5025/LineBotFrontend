@@ -18,14 +18,13 @@ const stats = computed(() => ({
 </script>
 
 <template>
-  <div class="home-container">
+  <div class="owner-dashboard">
     <div class="welcome-section">
       <div class="welcome-banner">
-        <div class="banner-icon">🏪</div>
-        <h1 class="banner-title">歡迎使用自理業者管理系統</h1>
+        <div class="banner-icon">👨‍💼</div>
+        <h1 class="banner-title">業主管理中心</h1>
         <p class="banner-description">
-          專為美容美體、美髮、健身教練等自理業者設計的全方位客戶管理系統。
-          輕鬆管理客戶資料、服務項目，並追蹤您的業務表現。
+          歡迎回到管理中心！您可以在這裡管理客戶資料、服務項目，並追蹤業務表現。
         </p>
         <div class="business-types">
           <div class="business-type">
@@ -52,7 +51,7 @@ const stats = computed(() => ({
 </template>
 
 <style scoped>
-.home-container {
+.owner-dashboard {
   padding: 2rem;
   max-width: 1400px;
   margin: 0 auto;
@@ -159,7 +158,7 @@ const stats = computed(() => ({
 }
 
 @media (max-width: 768px) {
-  .home-container {
+  .owner-dashboard {
     padding: 1rem;
   }
 
