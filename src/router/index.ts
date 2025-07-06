@@ -64,6 +64,11 @@ const router = createRouter({
       component: LineAuthCallback,
     },
     {
+      path: '/test-login',
+      name: 'test-login',
+      component: () => import('../views/TestLogin.vue'),
+    },
+    {
       path: '/about',
       name: 'about',
       component: () => import('../views/AboutView.vue'),
