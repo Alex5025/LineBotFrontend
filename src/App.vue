@@ -1,8 +1,14 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { useAuthStore } from './stores/auth'
 
 const authStore = useAuthStore()
+const router = useRouter()
+
+const handleLogout = () => {
+  authStore.logout()
+  router.push('/login')
+}
 </script>
 
 <template>
@@ -31,15 +37,7 @@ const authStore = useAuthStore()
           <!-- 用戶資訊和登出 -->
           <div class="user-menu">
             <span class="user-name">{{ authStore.currentUser?.name }}</span>
-            <button
-              @click="
-                authStore.logout()
-                $router.push('/login')
-              "
-              class="logout-btn"
-            >
-              登出
-            </button>
+            <button @click="handleLogout" class="logout-btn">登出</button>
           </div>
         </nav>
 
