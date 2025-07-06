@@ -5,6 +5,7 @@ import LoginPage from '../views/LoginPage.vue'
 import RegisterPage from '../views/RegisterPage.vue'
 import OwnerDashboard from '../views/OwnerDashboard.vue'
 import CustomerDashboard from '../views/CustomerDashboard.vue'
+import CustomerProfile from '../views/CustomerProfile.vue'
 import CustomerManagement from '../views/CustomerManagement.vue'
 import ServiceManagement from '../views/ServiceManagement.vue'
 import FinancialReports from '../views/FinancialReports.vue'
@@ -40,6 +41,12 @@ const router = createRouter({
       path: '/customer',
       name: 'customer-dashboard',
       component: CustomerDashboard,
+      meta: { requiresAuth: true, role: 'customer' },
+    },
+    {
+      path: '/customer/profile',
+      name: 'customer-profile',
+      component: CustomerProfile,
       meta: { requiresAuth: true, role: 'customer' },
     },
     {

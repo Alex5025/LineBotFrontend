@@ -1,6 +1,21 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 
+export interface CustomerPrivacySettings {
+  name: boolean
+  phone: boolean
+  email: boolean
+  address: boolean
+  age: boolean
+  height: boolean
+  weight: boolean
+  occupation: boolean
+  hairType: boolean
+  hairColor: boolean
+  skinCondition: boolean
+  notes: boolean
+}
+
 export interface Customer {
   id: string
   name: string
@@ -19,6 +34,7 @@ export interface Customer {
   createdAt: Date
   lastVisit?: Date
   totalSpent: number
+  privacySettings?: CustomerPrivacySettings
 }
 
 export const useCustomerStore = defineStore('customer', () => {
@@ -41,6 +57,20 @@ export const useCustomerStore = defineStore('customer', () => {
       createdAt: new Date('2024-01-15'),
       lastVisit: new Date('2024-12-10'),
       totalSpent: 15000,
+      privacySettings: {
+        name: true,
+        phone: false,
+        email: false,
+        address: false,
+        age: true,
+        height: false,
+        weight: false,
+        occupation: true,
+        hairType: true,
+        hairColor: true,
+        skinCondition: true,
+        notes: false,
+      },
     },
     {
       id: '2',
@@ -60,6 +90,20 @@ export const useCustomerStore = defineStore('customer', () => {
       createdAt: new Date('2024-02-20'),
       lastVisit: new Date('2024-12-12'),
       totalSpent: 8000,
+      privacySettings: {
+        name: true,
+        phone: false,
+        email: false,
+        address: false,
+        age: true,
+        height: true,
+        weight: true,
+        occupation: true,
+        hairType: false,
+        hairColor: false,
+        skinCondition: false,
+        notes: false,
+      },
     },
   ])
 

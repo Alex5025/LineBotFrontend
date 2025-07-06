@@ -35,6 +35,7 @@ const handleLogout = async () => {
           <!-- 顧客導航 -->
           <template v-if="authStore.isCustomer">
             <RouterLink to="/customer" class="nav-link">我的首頁</RouterLink>
+            <RouterLink to="/customer/profile" class="nav-link">個人資料</RouterLink>
           </template>
 
           <!-- 用戶資訊和登出 -->
