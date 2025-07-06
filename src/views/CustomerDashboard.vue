@@ -2,9 +2,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { useCustomerActivityStore } from '../stores/customerActivity'
+import CustomerAppointmentForm from '../components/CustomerAppointmentForm.vue'
 
 const authStore = useAuthStore()
 const activityStore = useCustomerActivityStore()
+const showAppointmentForm = ref(false)
 
 const currentDate = ref(new Date())
 const selectedYear = ref(currentDate.value.getFullYear())
@@ -13,7 +15,11 @@ const selectedMonth = ref(currentDate.value.getMonth() + 1)
 const customerId = computed(() => authStore.currentUser?.id || 'customer_1')
 
 // 獲取當月活動和統計
-const monthlyActivitiesRef = activityStore.getActivitiesByMonth(customerId.value, selectedYear.value, selectedMonth.value)
+const monthlyActivitiesRef = activityStore.getActivitiesByMonth(
+  customerId.value,
+  selectedYear.value,
+  selectedMonth.value,
+)
 const monthlyActivities = computed(() => (monthlyActivitiesRef.value || []).filter(Boolean))
 
 const monthlyStats = computed(() =>
@@ -142,6 +148,17 @@ const monthNames = [
   '11月',
   '12月',
 ]
+
+// 預約相關方法
+const toggleAppointmentForm = () => {
+  showAppointmentForm.value = !showAppointmentForm.value
+}
+
+const onAppointmentSubmit = () => {
+  showAppointmentForm.value = false
+  // 重新載入當前月份資料
+  // 這會觸發computed properties重新計算
+}
 </script>
 
 <template>
@@ -150,7 +167,18 @@ const monthNames = [
       <div class="welcome-header">
         <h1>歡迎回來，{{ authStore.currentUser?.name || '顧客' }}！</h1>
         <p>查看您的服務記錄和活動歷史</p>
+        <div class="welcome-actions">
+          <button @click="toggleAppointmentForm" class="appointment-btn">
+            <span class="btn-icon">📅</span>
+            {{ showAppointmentForm ? '取消預約' : '立即預約' }}
+          </button>
+        </div>
       </div>
+    </div>
+
+    <!-- 預約表單 -->
+    <div v-if="showAppointmentForm" class="appointment-form-section">
+      <CustomerAppointmentForm @submit="onAppointmentSubmit" @cancel="toggleAppointmentForm" />
     </div>
 
     <!-- 月份選擇器 -->
@@ -366,6 +394,42 @@ const monthNames = [
   color: var(--color-text);
   opacity: 0.8;
   font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.welcome-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.appointment-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #10b981, #06b6d4);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.appointment-btn:hover {
+  background: linear-gradient(135deg, #059669, #0891b2);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.btn-icon {
+  font-size: 1.2rem;
+}
+
+.appointment-form-section {
+  margin-bottom: 2rem;
 }
 
 .month-selector {
@@ -951,6 +1015,16 @@ const monthNames = [
 @media (max-width: 768px) {
   .customer-dashboard {
     padding: 1rem;
+  }
+
+  .welcome-header p {
+    margin-bottom: 1rem;
+  }
+
+  .appointment-btn {
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
   }
 
   .month-selector {
