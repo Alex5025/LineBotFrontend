@@ -8,8 +8,8 @@ const router = useRouter()
 const handleLogout = async () => {
   console.log('執行登出')
   authStore.logout()
-  console.log('登出完成，跳轉到登入頁面')
-  await router.push('/login')
+  console.log('登出完成，跳轉到首頁')
+  await router.push('/')
   console.log('跳轉完成')
 }
 </script>
@@ -45,6 +45,7 @@ const handleLogout = async () => {
         </nav>
 
         <nav v-else class="nav-menu">
+          <RouterLink to="/" class="nav-link">首頁</RouterLink>
           <RouterLink to="/login" class="nav-link">登入</RouterLink>
           <RouterLink to="/register" class="nav-link">註冊</RouterLink>
         </nav>
