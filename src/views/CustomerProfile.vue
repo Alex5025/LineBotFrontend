@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { useCustomerStore, type Customer, type CustomerPrivacySettings } from '../stores/customer'
 
@@ -44,7 +44,11 @@ const errors = ref<Record<string, string>>({})
 // 獲取當前登入的客戶資料
 const currentCustomer = computed(() => {
   const customerId = authStore.currentUser?.id
-  return customerStore.customers.find((customer) => customer.id === customerId)
+  console.log('尋找客戶ID:', customerId)
+  console.log('可用客戶:', customerStore.customers)
+  const customer = customerStore.customers.find((customer) => customer.id === customerId)
+  console.log('找到的客戶:', customer)
+  return customer
 })
 
 // 髮質選項
@@ -88,25 +92,46 @@ const skinConditions = [
 
 // 載入客戶資料
 const loadCustomerData = () => {
+  console.log('載入客戶資料，當前客戶:', currentCustomer.value)
   if (currentCustomer.value) {
     Object.assign(form, {
-      name: currentCustomer.value.name,
-      phone: currentCustomer.value.phone,
-      email: currentCustomer.value.email,
-      address: currentCustomer.value.address,
-      age: currentCustomer.value.age,
-      height: currentCustomer.value.height,
-      weight: currentCustomer.value.weight,
-      occupation: currentCustomer.value.occupation,
-      hairType: currentCustomer.value.hairType,
-      hairColor: currentCustomer.value.hairColor,
-      skinCondition: currentCustomer.value.skinCondition,
-      notes: currentCustomer.value.notes,
+      name: currentCustomer.value.name || '',
+      phone: currentCustomer.value.phone || '',
+      email: currentCustomer.value.email || '',
+      address: currentCustomer.value.address || '',
+      age: currentCustomer.value.age || 0,
+      height: currentCustomer.value.height || 0,
+      weight: currentCustomer.value.weight || 0,
+      occupation: currentCustomer.value.occupation || '',
+      hairType: currentCustomer.value.hairType || '',
+      hairColor: currentCustomer.value.hairColor || '',
+      skinCondition: currentCustomer.value.skinCondition || '',
+      notes: currentCustomer.value.notes || '',
     })
 
     if (currentCustomer.value.privacySettings) {
       Object.assign(privacySettings, currentCustomer.value.privacySettings)
+    } else {
+      // 如果沒有隱私設定，使用預設值
+      Object.assign(privacySettings, {
+        name: true,
+        phone: false,
+        email: false,
+        address: false,
+        age: true,
+        height: false,
+        weight: false,
+        occupation: true,
+        hairType: true,
+        hairColor: true,
+        skinCondition: true,
+        notes: false,
+      })
     }
+    console.log('載入後的表單資料:', form)
+    console.log('載入後的隱私設定:', privacySettings)
+  } else {
+    console.log('找不到當前客戶資料')
   }
 }
 
@@ -227,7 +252,20 @@ const businessTypeLabels = {
   fitness: '健身指導',
 }
 
+// 監聽當前客戶變化
+watch(
+  currentCustomer,
+  (newCustomer) => {
+    console.log('客戶資料變化:', newCustomer)
+    if (newCustomer) {
+      loadCustomerData()
+    }
+  },
+  { immediate: true },
+)
+
 onMounted(() => {
+  console.log('組件載入，當前用戶:', authStore.currentUser)
   loadCustomerData()
 })
 </script>
