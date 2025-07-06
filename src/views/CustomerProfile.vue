@@ -247,7 +247,6 @@ const businessTypeLabels = {
 watch(
   currentCustomer,
   (newCustomer) => {
-    console.log('客戶資料變化:', newCustomer)
     if (newCustomer) {
       loadCustomerData()
     }
@@ -256,7 +255,6 @@ watch(
 )
 
 onMounted(() => {
-  console.log('組件載入，當前用戶:', authStore.currentUser)
   loadCustomerData()
 })
 </script>
