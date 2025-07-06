@@ -23,6 +23,12 @@ const monthlyStats = computed(() =>
 
 const recentActivities = computed(() => activityStore.getRecentActivities(customerId.value, 3))
 
+const upcomingAppointments = computed(() =>
+  activityStore.getUpcomingAppointments(customerId.value, 3),
+)
+
+const recentAppointments = computed(() => activityStore.getRecentAppointments(customerId.value, 5))
+
 // 格式化日期
 const formatDate = (date: Date) => {
   return new Intl.DateTimeFormat('zh-TW', {
@@ -30,6 +36,31 @@ const formatDate = (date: Date) => {
     month: '2-digit',
     day: '2-digit',
   }).format(date)
+}
+
+// 格式化詳細日期時間
+const formatDateTime = (date: Date) => {
+  return new Intl.DateTimeFormat('zh-TW', {
+    month: '2-digit',
+    day: '2-digit',
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)
+}
+
+// 計算距離現在的天數
+const getDaysFromNow = (date: Date) => {
+  const now = new Date()
+  const targetDate = new Date(date)
+  const diffTime = targetDate.getTime() - now.getTime()
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+  if (diffDays === 0) return '今天'
+  if (diffDays === 1) return '明天'
+  if (diffDays === -1) return '昨天'
+  if (diffDays > 0) return `${diffDays}天後`
+  return `${Math.abs(diffDays)}天前`
 }
 
 // 格式化貨幣
@@ -41,7 +72,7 @@ const formatCurrency = (amount: number) => {
   }).format(amount)
 }
 
-// 獲取活動類型標籤
+// 獲取活��類型標籤
 const getActivityTypeLabel = (type: string) => {
   const labels = {
     service: '服務',
@@ -204,6 +235,84 @@ const monthNames = [
               </div>
             </div>
             <div v-if="activity.notes" class="activity-notes">💭 {{ activity.notes }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 即將到來的預約 -->
+    <div class="upcoming-appointments">
+      <div class="section-header">
+        <h3>即將到來的預約服務</h3>
+        <span v-if="upcomingAppointments.length > 0" class="appointment-count">
+          {{ upcomingAppointments.length }} 個預約
+        </span>
+      </div>
+
+      <div v-if="upcomingAppointments.length === 0" class="empty-appointments">
+        <div class="empty-icon">📅</div>
+        <h4>目前沒有預約</h4>
+        <p>您目前沒有即將到來的服務預約</p>
+      </div>
+
+      <div v-else class="appointments-list">
+        <div
+          v-for="appointment in upcomingAppointments"
+          :key="appointment.id"
+          class="appointment-card"
+        >
+          <div class="appointment-date-badge">
+            <div class="date-number">{{ formatDate(appointment.date).split('/')[2] }}</div>
+            <div class="date-month">{{ formatDate(appointment.date).split('/')[1] }}月</div>
+            <div class="date-relative">{{ getDaysFromNow(appointment.date) }}</div>
+          </div>
+
+          <div class="appointment-details">
+            <h4 class="appointment-title">{{ appointment.title }}</h4>
+            <p class="appointment-description">{{ appointment.description }}</p>
+            <div class="appointment-meta">
+              <span class="appointment-time">⏰ {{ formatDateTime(appointment.date) }}</span>
+              <span v-if="appointment.amount" class="appointment-price">
+                💰 {{ formatCurrency(appointment.amount) }}
+              </span>
+            </div>
+            <div v-if="appointment.notes" class="appointment-notes">📝 {{ appointment.notes }}</div>
+          </div>
+
+          <div class="appointment-actions">
+            <button class="action-btn reschedule">重新安排</button>
+            <button class="action-btn cancel">取消預約</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 最近預約記錄 -->
+    <div class="recent-appointments">
+      <h3>最近預約記錄</h3>
+      <div class="recent-list">
+        <div
+          v-for="appointment in recentAppointments"
+          :key="appointment.id"
+          class="recent-appointment-item"
+        >
+          <div class="appointment-status-icon" :class="appointment.status">
+            {{
+              appointment.status === 'completed'
+                ? '✅'
+                : appointment.status === 'scheduled'
+                  ? '📅'
+                  : '❌'
+            }}
+          </div>
+          <div class="recent-content">
+            <div class="recent-title">{{ appointment.title }}</div>
+            <div class="recent-date">
+              {{ formatDate(appointment.date) }} - {{ getStatusLabel(appointment.status) }}
+            </div>
+          </div>
+          <div v-if="appointment.amount" class="recent-amount">
+            {{ formatCurrency(appointment.amount) }}
           </div>
         </div>
       </div>
@@ -595,6 +704,251 @@ const monthNames = [
   font-weight: 600;
 }
 
+.upcoming-appointments {
+  background: var(--color-background-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.upcoming-appointments .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.upcoming-appointments h3 {
+  color: var(--color-heading);
+  font-weight: 600;
+  margin: 0;
+}
+
+.appointment-count {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.empty-appointments {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.empty-appointments .empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-appointments h4 {
+  color: var(--color-heading);
+  margin-bottom: 0.5rem;
+}
+
+.empty-appointments p {
+  color: var(--color-text);
+  opacity: 0.7;
+}
+
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.appointment-card {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  gap: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.appointment-card:hover {
+  border-color: var(--color-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.appointment-date-badge {
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  color: white;
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  min-width: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.date-number {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.date-month {
+  font-size: 0.8rem;
+  opacity: 0.9;
+  margin-bottom: 0.2rem;
+}
+
+.date-relative {
+  font-size: 0.7rem;
+  opacity: 0.8;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.2rem 0.4rem;
+  border-radius: 8px;
+  margin-top: 0.3rem;
+}
+
+.appointment-details {
+  flex: 1;
+}
+
+.appointment-title {
+  color: var(--color-heading);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.appointment-description {
+  color: var(--color-text);
+  margin-bottom: 0.8rem;
+  line-height: 1.4;
+}
+
+.appointment-meta {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.appointment-time,
+.appointment-price {
+  font-size: 0.9rem;
+  color: var(--color-text);
+  opacity: 0.8;
+}
+
+.appointment-price {
+  color: #10b981;
+  font-weight: 600;
+  opacity: 1;
+}
+
+.appointment-notes {
+  background: rgba(59, 130, 246, 0.05);
+  padding: 0.6rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+.appointment-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-self: flex-start;
+}
+
+.action-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.action-btn.reschedule {
+  background: #f59e0b;
+  color: white;
+}
+
+.action-btn.reschedule:hover {
+  background: #d97706;
+}
+
+.action-btn.cancel {
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid #ef4444;
+}
+
+.action-btn.cancel:hover {
+  background: #ef4444;
+  color: white;
+}
+
+.recent-appointments {
+  background: var(--color-background-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.recent-appointments h3 {
+  color: var(--color-heading);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.recent-appointment-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem;
+  background: var(--color-background);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  transition: all 0.2s ease;
+  margin-bottom: 0.5rem;
+}
+
+.recent-appointment-item:hover {
+  border-color: var(--color-border-hover);
+}
+
+.appointment-status-icon {
+  font-size: 1.2rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.appointment-status-icon.completed {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.appointment-status-icon.scheduled {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.appointment-status-icon.cancelled {
+  background: rgba(239, 68, 68, 0.1);
+}
+
 @media (max-width: 768px) {
   .customer-dashboard {
     padding: 1rem;
@@ -634,6 +988,31 @@ const monthNames = [
     flex-direction: column;
     gap: 0.5rem;
     align-items: flex-start;
+  }
+
+  .appointment-card {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .appointment-date-badge {
+    align-self: flex-start;
+    min-width: 60px;
+    padding: 0.8rem;
+  }
+
+  .appointment-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .appointment-actions {
+    flex-direction: row;
+    align-self: stretch;
+  }
+
+  .action-btn {
+    flex: 1;
   }
 }
 </style>

@@ -26,17 +26,43 @@ export const useCustomerActivityStore = defineStore('customerActivity', () => {
       date: new Date('2024-12-01'),
       status: 'completed',
       serviceId: 'service_1',
-      notes: '效果很好，皮膚變得更光滑',
+      notes: '效果很好，皮膚變���更光滑',
     },
     {
       id: '2',
       customerId: 'customer_1',
       type: 'appointment',
-      title: '預約下次療程',
-      description: '預約下次美容護膚療程',
-      date: new Date('2024-12-15'),
+      title: '深層保濕護膚',
+      description: '90分鐘深層保濕護膚療程',
+      date: new Date('2024-12-20'),
       status: 'scheduled',
-      notes: '預約週五下午2點',
+      serviceId: 'service_1',
+      amount: 1500,
+      notes: '下午3點預約，準備做聖誕節前保養',
+    },
+    {
+      id: '6',
+      customerId: 'customer_1',
+      type: 'appointment',
+      title: '精油SPA按摩',
+      description: '120分鐘全身精油放鬆按摩',
+      date: new Date('2024-12-25'),
+      status: 'scheduled',
+      serviceId: 'service_2',
+      amount: 2200,
+      notes: '聖誕節特別療程，已確認預約',
+    },
+    {
+      id: '7',
+      customerId: 'customer_1',
+      type: 'appointment',
+      title: '臉部深層清潔',
+      description: '60分鐘專業臉部清潔護理',
+      date: new Date('2024-12-28'),
+      status: 'scheduled',
+      serviceId: 'service_3',
+      amount: 1200,
+      notes: '年末深層清潔，為新年做準備',
     },
     {
       id: '3',
@@ -127,6 +153,33 @@ export const useCustomerActivityStore = defineStore('customerActivity', () => {
     })
   }
 
+  // 獲取即將到來的預約
+  const getUpcomingAppointments = (customerId: string, limit: number = 5) => {
+    return computed(() => {
+      const now = new Date()
+      return activities.value
+        .filter(
+          (activity) =>
+            activity.customerId === customerId &&
+            activity.type === 'appointment' &&
+            activity.status === 'scheduled' &&
+            new Date(activity.date) >= now,
+        )
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .slice(0, limit)
+    })
+  }
+
+  // 獲取最近預約的服務（包括已完成和即將到來的）
+  const getRecentAppointments = (customerId: string, limit: number = 3) => {
+    return computed(() => {
+      return activities.value
+        .filter((activity) => activity.customerId === customerId && activity.type === 'appointment')
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, limit)
+    })
+  }
+
   // 新增活動
   function addActivity(activity: Omit<CustomerActivity, 'id'>) {
     const newActivity: CustomerActivity = {
@@ -158,6 +211,8 @@ export const useCustomerActivityStore = defineStore('customerActivity', () => {
     getActivitiesByMonth,
     getMonthlyStats,
     getRecentActivities,
+    getUpcomingAppointments,
+    getRecentAppointments,
     addActivity,
     updateActivity,
     deleteActivity,
