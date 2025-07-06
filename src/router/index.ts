@@ -1,9 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import { useAuthStore } from '../stores/auth'
+import LoginPage from '../views/LoginPage.vue'
+import RegisterPage from '../views/RegisterPage.vue'
+import OwnerDashboard from '../views/OwnerDashboard.vue'
+import CustomerDashboard from '../views/CustomerDashboard.vue'
 import CustomerManagement from '../views/CustomerManagement.vue'
 import ServiceManagement from '../views/ServiceManagement.vue'
 import FinancialReports from '../views/FinancialReports.vue'
-import CustomerRegister from '../views/CustomerRegister.vue'
 import LineAuthCallback from '../views/LineAuthCallback.vue'
 
 const router = createRouter({
@@ -11,28 +14,49 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView,
+      redirect: '/login',
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginPage,
+      meta: { requiresGuest: true },
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterPage,
+      meta: { requiresGuest: true },
+    },
+    {
+      path: '/owner',
+      name: 'owner-dashboard',
+      component: OwnerDashboard,
+      meta: { requiresAuth: true, role: 'owner' },
+    },
+    {
+      path: '/customer',
+      name: 'customer-dashboard',
+      component: CustomerDashboard,
+      meta: { requiresAuth: true, role: 'customer' },
     },
     {
       path: '/customers',
       name: 'customers',
       component: CustomerManagement,
+      meta: { requiresAuth: true, role: 'owner' },
     },
     {
       path: '/services',
       name: 'services',
       component: ServiceManagement,
+      meta: { requiresAuth: true, role: 'owner' },
     },
     {
       path: '/reports',
       name: 'reports',
       component: FinancialReports,
-    },
-    {
-      path: '/customer-register',
-      name: 'customer-register',
-      component: CustomerRegister,
+      meta: { requiresAuth: true, role: 'owner' },
     },
     {
       path: '/auth/line/callback',
@@ -45,6 +69,45 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue'),
     },
   ],
+})
+
+// 路由守衛
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+
+  // 檢查是否需要身份驗證
+  if (to.meta.requiresAuth) {
+    if (!authStore.isAuthenticated) {
+      next('/login')
+      return
+    }
+
+    // 檢查角色權限
+    if (to.meta.role && authStore.userRole !== to.meta.role) {
+      // 重定向到對應角色的首頁
+      if (authStore.isOwner) {
+        next('/owner')
+      } else if (authStore.isCustomer) {
+        next('/customer')
+      } else {
+        next('/login')
+      }
+      return
+    }
+  }
+
+  // 檢查是否為遊客頁面（登入/註冊）
+  if (to.meta.requiresGuest && authStore.isAuthenticated) {
+    // 已登入用戶重定向到對應首頁
+    if (authStore.isOwner) {
+      next('/owner')
+    } else if (authStore.isCustomer) {
+      next('/customer')
+    }
+    return
+  }
+
+  next()
 })
 
 export default router

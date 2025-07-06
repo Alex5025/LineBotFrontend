@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import { useAuthStore } from './stores/auth'
+
+const authStore = useAuthStore()
 </script>
 
 <template>
@@ -11,12 +14,38 @@ import { RouterLink, RouterView } from 'vue-router'
           <h1>自理業者管理系統</h1>
         </div>
 
-        <nav class="nav-menu">
-          <RouterLink to="/" class="nav-link">首頁</RouterLink>
-          <RouterLink to="/customers" class="nav-link">客戶管理</RouterLink>
-          <RouterLink to="/services" class="nav-link">服務管理</RouterLink>
-          <RouterLink to="/reports" class="nav-link">財務報表</RouterLink>
-          <RouterLink to="/about" class="nav-link">關於</RouterLink>
+        <nav v-if="authStore.isAuthenticated" class="nav-menu">
+          <!-- 業主導航 -->
+          <template v-if="authStore.isOwner">
+            <RouterLink to="/owner" class="nav-link">首頁</RouterLink>
+            <RouterLink to="/customers" class="nav-link">客戶管理</RouterLink>
+            <RouterLink to="/services" class="nav-link">服務管理</RouterLink>
+            <RouterLink to="/reports" class="nav-link">財務報表</RouterLink>
+          </template>
+
+          <!-- 顧客導航 -->
+          <template v-if="authStore.isCustomer">
+            <RouterLink to="/customer" class="nav-link">我的首頁</RouterLink>
+          </template>
+
+          <!-- 用戶資訊和登出 -->
+          <div class="user-menu">
+            <span class="user-name">{{ authStore.currentUser?.name }}</span>
+            <button
+              @click="
+                authStore.logout()
+                $router.push('/login')
+              "
+              class="logout-btn"
+            >
+              登出
+            </button>
+          </div>
+        </nav>
+
+        <nav v-else class="nav-menu">
+          <RouterLink to="/login" class="nav-link">登入</RouterLink>
+          <RouterLink to="/register" class="nav-link">註冊</RouterLink>
         </nav>
       </div>
     </header>
@@ -99,6 +128,36 @@ import { RouterLink, RouterView } from 'vue-router'
 .nav-link.router-link-exact-active {
   background: #8b5cf6;
   color: white;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: 1rem;
+  padding-left: 1rem;
+  border-left: 1px solid var(--color-border);
+}
+
+.user-name {
+  color: var(--color-heading);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.logout-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
 }
 
 .app-main {
