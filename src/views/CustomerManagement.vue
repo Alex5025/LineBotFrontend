@@ -31,15 +31,25 @@ const onFormSubmit = () => {
         <h1>客戶管理</h1>
         <p>管理您的客戶資料，追蹤客戶資訊與服務紀錄</p>
       </div>
-      <button @click="toggleAddForm" class="add-customer-btn">
-        <span class="btn-icon">{{ showAddForm ? '✕' : '+' }}</span>
-        {{ showAddForm ? '取消' : '新增客戶' }}
-      </button>
+      <div class="header-buttons">
+        <button @click="toggleAppointmentForm" class="add-appointment-btn">
+          <span class="btn-icon">{{ showAppointmentForm ? '✕' : '📅' }}</span>
+          {{ showAppointmentForm ? '取消' : '新增預約' }}
+        </button>
+        <button @click="toggleAddForm" class="add-customer-btn">
+          <span class="btn-icon">{{ showAddForm ? '✕' : '+' }}</span>
+          {{ showAddForm ? '取消' : '新增客戶' }}
+        </button>
+      </div>
     </div>
 
     <div class="management-content">
       <div v-if="showAddForm" class="form-section">
         <CustomerForm :customer="selectedCustomer" @submit="onFormSubmit" @cancel="toggleAddForm" />
+      </div>
+
+      <div v-if="showAppointmentForm" class="form-section">
+        <AppointmentForm @submit="onAppointmentSubmit" @cancel="toggleAppointmentForm" />
       </div>
 
       <div class="list-section">
@@ -78,18 +88,38 @@ const onFormSubmit = () => {
   font-size: 1rem;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.add-appointment-btn,
 .add-customer-btn {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.8rem 1.5rem;
-  background: #8b5cf6;
-  color: white;
   border: none;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.add-appointment-btn {
+  background: #10b981;
+  color: white;
+}
+
+.add-appointment-btn:hover {
+  background: #059669;
+  transform: translateY(-2px);
+}
+
+.add-customer-btn {
+  background: #8b5cf6;
+  color: white;
 }
 
 .add-customer-btn:hover {
@@ -131,8 +161,15 @@ const onFormSubmit = () => {
     font-size: 1.6rem;
   }
 
+  .header-buttons {
+    flex-direction: column;
+    gap: 0.8rem;
+    align-items: stretch;
+  }
+
+  .add-appointment-btn,
   .add-customer-btn {
-    align-self: flex-start;
+    justify-content: center;
   }
 }
 </style>
