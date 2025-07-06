@@ -135,7 +135,7 @@ const loadCustomerData = () => {
   }
 }
 
-// 驗證表單
+// 驗證���單
 const validateForm = () => {
   errors.value = {}
 
@@ -172,14 +172,17 @@ const validateForm = () => {
 
 // 開始編輯
 const startEditing = () => {
+  console.log('開始編輯模式')
+  loadCustomerData() // 先載入最新資料
   isEditing.value = true
-  loadCustomerData()
+  console.log('編輯模式表單資料:', form)
 }
 
 // 取消編輯
 const cancelEditing = () => {
+  console.log('取消編輯模式')
   isEditing.value = false
-  loadCustomerData()
+  loadCustomerData() // 重新載入原始資料
   errors.value = {}
 }
 
