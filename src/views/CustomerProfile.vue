@@ -51,10 +51,48 @@ const findCurrentCustomer = () => {
   console.log('Debug - 當前用戶:', authStore.currentUser)
   console.log('Debug - 所有客戶:', customerStore.customers)
 
-  if (customerId) {
+  if (customerId && customerStore.customers.length > 0) {
     const customer = customerStore.customers.find((customer) => customer.id === customerId)
     console.log('Debug - 找到的客戶:', customer)
-    currentCustomer.value = customer
+
+    if (customer) {
+      currentCustomer.value = customer
+      // 立即填入表單資料
+      Object.assign(form, {
+        name: customer.name || '',
+        phone: customer.phone || '',
+        email: customer.email || '',
+        address: customer.address || '',
+        age: customer.age || 0,
+        height: customer.height || 0,
+        weight: customer.weight || 0,
+        occupation: customer.occupation || '',
+        hairType: customer.hairType || '',
+        hairColor: customer.hairColor || '',
+        skinCondition: customer.skinCondition || '',
+        notes: customer.notes || '',
+      })
+
+      if (customer.privacySettings) {
+        Object.assign(privacySettings, customer.privacySettings)
+      } else {
+        Object.assign(privacySettings, {
+          name: true,
+          phone: false,
+          email: false,
+          address: false,
+          age: true,
+          height: false,
+          weight: false,
+          occupation: true,
+          hairType: true,
+          hairColor: true,
+          skinCondition: true,
+          notes: false,
+        })
+      }
+      console.log('Debug - 資料已填入表單:', form)
+    }
     return customer
   }
   return null
@@ -205,7 +243,7 @@ const cancelEditing = () => {
   errors.value = {}
 }
 
-// 儲存資料
+// 儲��資料
 const saveProfile = async () => {
   if (!validateForm()) {
     return
@@ -322,7 +360,7 @@ onMounted(() => {
       <div class="header-actions">
         <div v-if="!isEditing" class="header-btn-group">
           <button @click="loadCustomerData" class="reload-btn">
-            <span class="btn-icon">��</span>
+            <span class="btn-icon">🔄</span>
             重新載入
           </button>
           <button @click="startEditing" class="edit-btn">
@@ -366,7 +404,7 @@ onMounted(() => {
               placeholder="請輸入姓名"
             />
             <div v-else class="value-with-privacy">
-              <span class="value">{{ currentCustomer?.name || form.name }}</span>
+              <span class="value">{{ form.name || currentCustomer?.name || '未設定' }}</span>
               <span v-if="currentCustomer?.privacySettings?.name" class="privacy-status public"
                 >對外公開</span
               >
