@@ -322,7 +322,7 @@ onMounted(() => {
       <div class="header-actions">
         <div v-if="!isEditing" class="header-btn-group">
           <button @click="loadCustomerData" class="reload-btn">
-            <span class="btn-icon">🔄</span>
+            <span class="btn-icon">��</span>
             重新載入
           </button>
           <button @click="startEditing" class="edit-btn">
@@ -366,7 +366,7 @@ onMounted(() => {
               placeholder="請輸入姓名"
             />
             <div v-else class="value-with-privacy">
-              <span class="value">{{ currentCustomer?.name }}</span>
+              <span class="value">{{ currentCustomer?.name || form.name }}</span>
               <span v-if="currentCustomer?.privacySettings?.name" class="privacy-status public"
                 >對外公開</span
               >
