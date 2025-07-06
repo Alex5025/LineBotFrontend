@@ -264,8 +264,10 @@ const businessTypeLabels = {
 // 監聽當前客戶變化
 watch(
   currentCustomer,
-  (newCustomer) => {
+  (newCustomer, oldCustomer) => {
+    console.log('Debug - 客戶資料變化:', { newCustomer, oldCustomer })
     if (newCustomer) {
+      console.log('Debug - 客戶資料變化，重新載入資料')
       loadCustomerData()
     }
   },
@@ -273,7 +275,14 @@ watch(
 )
 
 onMounted(() => {
-  loadCustomerData()
+  console.log('Debug - 組件載入')
+  console.log('Debug - 當前用戶:', authStore.currentUser)
+  console.log('Debug - 是否已驗證:', authStore.isAuthenticated)
+  // 稍微延遲確保所有store都已初始化
+  setTimeout(() => {
+    console.log('Debug - 延遲後重新載入資料')
+    loadCustomerData()
+  }, 100)
 })
 </script>
 
@@ -675,7 +684,7 @@ onMounted(() => {
                   type="checkbox"
                   class="privacy-checkbox-inline"
                 />
-                <span class="privacy-label-inline">���外公開</span>
+                <span class="privacy-label-inline">對外公開</span>
               </label>
             </div>
             <textarea
