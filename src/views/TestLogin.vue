@@ -19,9 +19,9 @@ const testOwnerLogin = () => {
 const testCustomerLogin = () => {
   console.log('測試顧客登入')
   authStore.loginAsCustomer({
-    id: 'customer_test',
-    name: '測試顧客',
-    email: 'customer@test.com',
+    id: '1',
+    name: '王小美',
+    email: 'wang@example.com',
   })
   console.log('登入狀態:', authStore.isAuthenticated, authStore.userRole)
   router.push('/customer')
