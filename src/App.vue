@@ -1,9 +1,24 @@
 <script setup lang="ts">
 import { RouterLink, RouterView, useRouter } from 'vue-router'
+import { computed } from 'vue'
 import { useAuthStore } from './stores/auth'
+import { useCustomerStore } from './stores/customer'
 
 const authStore = useAuthStore()
+const customerStore = useCustomerStore()
 const router = useRouter()
+
+// 獲取當前用戶顯示名稱，優先使用 customer store 的資料
+const currentUserName = computed(() => {
+  if (authStore.isCustomer) {
+    if (authStore.currentUser?.id === '1') {
+      return customerStore.wangXiaomei?.name || authStore.currentUser?.name
+    } else if (authStore.currentUser?.id === '2') {
+      return customerStore.wangDamei?.name || authStore.currentUser?.name
+    }
+  }
+  return authStore.currentUser?.name
+})
 
 const handleLogout = async () => {
   console.log('執行登出')
@@ -40,7 +55,7 @@ const handleLogout = async () => {
 
           <!-- 用戶資訊和登出 -->
           <div class="user-menu">
-            <span class="user-name">{{ authStore.currentUser?.name }}</span>
+            <span class="user-name">{{ currentUserName }}</span>
             <button @click="handleLogout" class="logout-btn">登出</button>
           </div>
         </nav>

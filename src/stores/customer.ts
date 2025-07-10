@@ -38,40 +38,79 @@ export interface Customer {
 }
 
 export const useCustomerStore = defineStore('customer', () => {
-  const customers = ref<Customer[]>([
-    {
-      id: '1',
-      name: '王小美',
-      phone: '0912-345-678',
-      email: 'wang@example.com',
-      address: '台北市信義區信義路123號',
-      age: 28,
-      height: 165,
-      weight: 52,
-      occupation: '上班族',
-      hairType: '細軟髮',
-      hairColor: '棕色',
-      skinCondition: '混合性肌膚',
-      businessType: 'beauty',
-      notes: '對染髮過敏',
-      createdAt: new Date('2024-01-15'),
-      lastVisit: new Date('2024-12-10'),
-      totalSpent: 15000,
-      privacySettings: {
-        name: true,
-        phone: false,
-        email: false,
-        address: false,
-        age: true,
-        height: false,
-        weight: false,
-        occupation: true,
-        hairType: true,
-        hairColor: true,
-        skinCondition: true,
-        notes: false,
-      },
+  // 王小美作為主要客戶資料，所有地方都從這裡取得
+  const wangXiaomei = ref<Customer>({
+    id: '1',
+    name: '王小美',
+    phone: '0912-345-678',
+    email: 'wang@example.com',
+    address: '台北市信義區信義路123號',
+    age: 28,
+    height: 165,
+    weight: 52,
+    occupation: '上班族',
+    hairType: '細軟髮',
+    hairColor: '棕色',
+    skinCondition: '混合性肌膚',
+    businessType: 'beauty',
+    notes: '對染髮過敏',
+    createdAt: new Date('2024-01-15'),
+    lastVisit: new Date('2024-12-10'),
+    totalSpent: 15000,
+    privacySettings: {
+      name: true,
+      phone: false,
+      email: false,
+      address: false,
+      age: true,
+      height: false,
+      weight: false,
+      occupation: true,
+      hairType: true,
+      hairColor: true,
+      skinCondition: true,
+      notes: false,
     },
+  })
+
+  // 王大美的完整客戶資料
+  const wangDamei = ref<Customer>({
+    id: '2',
+    name: '王大美',
+    phone: '0987-654-321',
+    email: 'wangdamei@example.com',
+    address: '新北市板橋區中山路456號',
+    age: 32,
+    height: 160,
+    weight: 55,
+    occupation: '設計師',
+    hairType: '自然捲',
+    hairColor: '亞麻色',
+    skinCondition: '乾性肌膚',
+    businessType: 'hair',
+    notes: '偏好自然風格造型，不喜歡太厚重的妝容',
+    createdAt: new Date('2024-02-20'),
+    lastVisit: new Date('2024-12-12'),
+    totalSpent: 22000,
+    privacySettings: {
+      name: true,
+      phone: true,
+      email: false,
+      address: false,
+      age: false,
+      height: true,
+      weight: false,
+      occupation: true,
+      hairType: true,
+      hairColor: true,
+      skinCondition: true,
+      notes: true,
+    },
+  })
+
+  const customers = ref<Customer[]>([
+    wangXiaomei.value,
+    wangDamei.value,
     {
       id: '2',
       name: '李健身',
@@ -175,8 +214,46 @@ export const useCustomerStore = defineStore('customer', () => {
     return customers.value.find((customer) => customer.id === id)
   }
 
+  // 專門的王小美資料操作函數
+  function getWangXiaomei() {
+    return wangXiaomei.value
+  }
+
+  function updateWangXiaomei(updates: Partial<Customer>) {
+    console.log('更新王小美資料:', updates)
+    Object.assign(wangXiaomei.value, updates)
+
+    // 同步更新到 customers 列表中
+    const index = customers.value.findIndex((c) => c.id === '1')
+    if (index !== -1) {
+      customers.value[index] = wangXiaomei.value
+    }
+
+    console.log('更新後的王小美資料:', wangXiaomei.value)
+  }
+
+  // 專門的王大美資料操作函數
+  function getWangDamei() {
+    return wangDamei.value
+  }
+
+  function updateWangDamei(updates: Partial<Customer>) {
+    console.log('更新王大美資料:', updates)
+    Object.assign(wangDamei.value, updates)
+
+    // 同步更新到 customers 列表中
+    const index = customers.value.findIndex((c) => c.id === '2')
+    if (index !== -1) {
+      customers.value[index] = wangDamei.value
+    }
+
+    console.log('更新後的王大美資料:', wangDamei.value)
+  }
+
   return {
     customers,
+    wangXiaomei,
+    wangDamei,
     currentPage,
     itemsPerPage,
     searchQuery,
@@ -190,5 +267,9 @@ export const useCustomerStore = defineStore('customer', () => {
     updateCustomer,
     deleteCustomer,
     getCustomerById,
+    getWangXiaomei,
+    updateWangXiaomei,
+    getWangDamei,
+    updateWangDamei,
   }
 })

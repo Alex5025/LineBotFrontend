@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useServiceStore } from '../stores/service'
+import { useServiceStore, type Service } from '../stores/service'
 import ServiceForm from '../components/ServiceForm.vue'
 import ServiceList from '../components/ServiceList.vue'
 
 const serviceStore = useServiceStore()
 const showAddForm = ref(false)
-const selectedService = ref(null)
+const selectedService = ref<Service | null>(null)
 
 const toggleAddForm = () => {
   showAddForm.value = !showAddForm.value
   selectedService.value = null
 }
 
-const editService = (service: any) => {
+const editService = (service: Service) => {
   selectedService.value = service
   showAddForm.value = true
 }

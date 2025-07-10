@@ -17,12 +17,15 @@ const testOwnerLogin = () => {
 }
 
 const testCustomerLogin = () => {
-  console.log('測試顧客登入')
-  authStore.loginAsCustomer({
-    id: '1',
-    name: '王小美',
-    email: 'wang@example.com',
-  })
+  console.log('測試王小美登入')
+  authStore.loginAsWangXiaomei()
+  console.log('登入狀態:', authStore.isAuthenticated, authStore.userRole)
+  router.push('/customer')
+}
+
+const testWangDameiLogin = () => {
+  console.log('測試王大美登入')
+  authStore.loginAsWangDamei()
   console.log('登入狀態:', authStore.isAuthenticated, authStore.userRole)
   router.push('/customer')
 }
@@ -64,6 +67,7 @@ const checkAuthState = () => {
       <button
         @click="testCustomerLogin"
         style="
+          margin-right: 1rem;
           padding: 0.5rem 1rem;
           background: #10b981;
           color: white;
@@ -71,7 +75,20 @@ const checkAuthState = () => {
           border-radius: 4px;
         "
       >
-        測試顧客登入
+        測試王小美登入
+      </button>
+
+      <button
+        @click="testWangDameiLogin"
+        style="
+          padding: 0.5rem 1rem;
+          background: #8b5cf6;
+          color: white;
+          border: none;
+          border-radius: 4px;
+        "
+      >
+        測試王大美登入
       </button>
     </div>
 

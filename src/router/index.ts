@@ -131,6 +131,13 @@ router.beforeEach((to, from, next) => {
     return
   }
 
+  // 已登入的客戶訪問首頁時，自動重定向到客戶儀表板
+  if (to.path === '/' && authStore.isAuthenticated && authStore.isCustomer) {
+    console.log('已登入客戶訪問首頁，重定向到客戶儀表板')
+    next('/customer')
+    return
+  }
+
   console.log('路由檢查通過，繼續導航')
   next()
 })

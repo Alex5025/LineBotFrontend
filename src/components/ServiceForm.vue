@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
+import { computed, reactive, watch } from 'vue'
 import { useServiceStore, type Service } from '../stores/service'
 
 interface Props {
@@ -14,6 +14,19 @@ const emit = defineEmits<{
 
 const serviceStore = useServiceStore()
 
+// 從 pinia 取得所有服務分類（唯一值）
+const categories = computed(() => {
+  const all = serviceStore.services?.map(s => s.category) || []
+  // 若資料庫為空，給預設三個分類
+  const base = ['beauty', 'hair', 'fitness']
+  return Array.from(new Set([...base, ...all])).map((cat) => {
+    if (cat === 'beauty') return { value: 'beauty', label: '美容美體' }
+    if (cat === 'hair') return { value: 'hair', label: '美髮造型' }
+    if (cat === 'fitness') return { value: 'fitness', label: '健身指導' }
+    return { value: cat, label: cat }
+  })
+})
+
 const form = reactive({
   name: '',
   description: '',
@@ -22,12 +35,6 @@ const form = reactive({
   category: 'beauty' as 'beauty' | 'hair' | 'fitness',
   isActive: true,
 })
-
-const categories = [
-  { value: 'beauty', label: '美容美體' },
-  { value: 'hair', label: '美髮造型' },
-  { value: 'fitness', label: '健身指導' },
-]
 
 // 先宣告 resetForm，避免 watch 取用時尚未初始化
 const resetForm = () => {

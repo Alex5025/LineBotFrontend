@@ -44,6 +44,42 @@ const errors = ref<Record<string, string>>({})
 // 獲取當前登入的客戶資料
 const currentCustomer = ref(null)
 
+// 根據當前登入用戶獲取對應的客戶資料
+const reactiveCurrentCustomer = computed(() => {
+  const currentUserId = authStore.currentUser?.id
+  let currentCustomerData = null
+
+  if (currentUserId === '1') {
+    currentCustomerData = customerStore.wangXiaomei
+  } else if (currentUserId === '2') {
+    currentCustomerData = customerStore.wangDamei
+  }
+
+  // 如果表單還沒有資料或者不是編輯狀態，就更新表單
+  if (currentCustomerData && (!form.name || !isEditing.value)) {
+    Object.assign(form, {
+      name: currentCustomerData.name || '',
+      phone: currentCustomerData.phone || '',
+      email: currentCustomerData.email || '',
+      address: currentCustomerData.address || '',
+      age: currentCustomerData.age || 0,
+      height: currentCustomerData.height || 0,
+      weight: currentCustomerData.weight || 0,
+      occupation: currentCustomerData.occupation || '',
+      hairType: currentCustomerData.hairType || '',
+      hairColor: currentCustomerData.hairColor || '',
+      skinCondition: currentCustomerData.skinCondition || '',
+      notes: currentCustomerData.notes || '',
+    })
+
+    if (currentCustomerData.privacySettings) {
+      Object.assign(privacySettings, currentCustomerData.privacySettings)
+    }
+  }
+
+  return currentCustomerData
+})
+
 // 主動尋找客戶資料的函數
 const findCurrentCustomer = () => {
   const customerId = authStore.currentUser?.id
@@ -98,7 +134,7 @@ const findCurrentCustomer = () => {
   return null
 }
 
-// 髮質選項
+// ���質選項
 const hairTypes = [
   '細軟髮',
   '粗硬髮',
@@ -139,59 +175,37 @@ const skinConditions = [
 
 // 載入客戶資料
 const loadCustomerData = () => {
-  console.log('Debug - 開始載入客戶資料')
+  console.log('Debug - 載入王小美資料')
 
-  // 先尋找當前客戶
-  const customer = findCurrentCustomer()
-  console.log('Debug - findCurrentCustomer 結果:', customer)
+  // 直接從 customer store 獲取王小美資料
+  const wangXiaomei = customerStore.wangXiaomei
 
-  if (customer) {
-    console.log('Debug - 找到客戶資料，開始填入表單')
-    const customerData = {
-      name: customer.name || '',
-      phone: customer.phone || '',
-      email: customer.email || '',
-      address: customer.address || '',
-      age: customer.age || 0,
-      height: customer.height || 0,
-      weight: customer.weight || 0,
-      occupation: customer.occupation || '',
-      hairType: customer.hairType || '',
-      hairColor: customer.hairColor || '',
-      skinCondition: customer.skinCondition || '',
-      notes: customer.notes || '',
+  if (wangXiaomei) {
+    console.log('Debug - 王小美資料:', wangXiaomei)
+
+    Object.assign(form, {
+      name: wangXiaomei.name || '',
+      phone: wangXiaomei.phone || '',
+      email: wangXiaomei.email || '',
+      address: wangXiaomei.address || '',
+      age: wangXiaomei.age || 0,
+      height: wangXiaomei.height || 0,
+      weight: wangXiaomei.weight || 0,
+      occupation: wangXiaomei.occupation || '',
+      hairType: wangXiaomei.hairType || '',
+      hairColor: wangXiaomei.hairColor || '',
+      skinCondition: wangXiaomei.skinCondition || '',
+      notes: wangXiaomei.notes || '',
+    })
+
+    if (wangXiaomei.privacySettings) {
+      Object.assign(privacySettings, wangXiaomei.privacySettings)
     }
-    console.log('Debug - 要填入的客戶資���:', customerData)
 
-    Object.assign(form, customerData)
-    console.log('Debug - 填入後的表單:', form)
-
-    if (customer.privacySettings) {
-      Object.assign(privacySettings, customer.privacySettings)
-      console.log('Debug - 載入現有隱私設定:', customer.privacySettings)
-    } else {
-      // 如果沒有隱私設定，使用預設值
-      const defaultPrivacy = {
-        name: true,
-        phone: false,
-        email: false,
-        address: false,
-        age: true,
-        height: false,
-        weight: false,
-        occupation: true,
-        hairType: true,
-        hairColor: true,
-        skinCondition: true,
-        notes: false,
-      }
-      Object.assign(privacySettings, defaultPrivacy)
-      console.log('Debug - 使用預設隱私設定:', defaultPrivacy)
-    }
+    currentCustomer.value = wangXiaomei
+    console.log('Debug - 表單資料已更新:', form)
   } else {
-    console.log('Debug - 找不到客戶資料！')
-    console.log('Debug - authStore.currentUser:', authStore.currentUser)
-    console.log('Debug - customerStore.customers:', customerStore.customers)
+    console.log('Debug - 找不到王小美資料！')
   }
 }
 
@@ -230,6 +244,46 @@ const validateForm = () => {
   return Object.keys(errors.value).length === 0
 }
 
+// 強制重新載入資料
+const forceReloadData = () => {
+  console.log('強制重新載入資料')
+
+  // 重新初始化認���
+  authStore.initializeAuth()
+
+  // 清除當前客戶資料
+  currentCustomer.value = null
+
+  // 重新載入
+  setTimeout(() => {
+    loadCustomerData()
+
+    // 強制更新響應式資料
+    const customer = reactiveCurrentCustomer.value
+    if (customer) {
+      console.log('強制更新後的客戶資料:', customer)
+      Object.assign(form, {
+        name: customer.name || '',
+        phone: customer.phone || '',
+        email: customer.email || '',
+        address: customer.address || '',
+        age: customer.age || 0,
+        height: customer.height || 0,
+        weight: customer.weight || 0,
+        occupation: customer.occupation || '',
+        hairType: customer.hairType || '',
+        hairColor: customer.hairColor || '',
+        skinCondition: customer.skinCondition || '',
+        notes: customer.notes || '',
+      })
+
+      if (customer.privacySettings) {
+        Object.assign(privacySettings, customer.privacySettings)
+      }
+    }
+  }, 100)
+}
+
 // 開始編輯
 const startEditing = () => {
   loadCustomerData() // 先載入最新資料
@@ -243,27 +297,43 @@ const cancelEditing = () => {
   errors.value = {}
 }
 
-// 儲��資料
+// 儲存資料
 const saveProfile = async () => {
   if (!validateForm()) {
-    return
-  }
-
-  if (!currentCustomer.value) {
     return
   }
 
   isSaving.value = true
 
   try {
-    // 更新客戶資料
-    customerStore.updateCustomer(currentCustomer.value.id, {
-      ...form,
-      privacySettings: { ...privacySettings },
+    const currentUserId = authStore.currentUser?.id
+
+    // 根據當前用戶更新對應的客戶資料
+    if (currentUserId === '1') {
+      customerStore.updateWangXiaomei({
+        ...form,
+        privacySettings: { ...privacySettings },
+      })
+      console.log('王小美個人資料更新成功')
+    } else if (currentUserId === '2') {
+      customerStore.updateWangDamei({
+        ...form,
+        privacySettings: { ...privacySettings },
+      })
+      console.log('王大美個人資料更新成功')
+    }
+
+    // 同步更新 auth store 中的用戶資訊
+    authStore.updateUser({
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
     })
 
     isEditing.value = false
     errors.value = {}
+
+    console.log('個人資料更新成功')
   } catch (error) {
     console.error('儲存失敗:', error)
   } finally {
@@ -318,7 +388,7 @@ watch(
   (newUser) => {
     console.log('Debug - 用戶變化:', newUser)
     if (newUser) {
-      console.log('Debug - 用戶變化，重新載入資料')
+      console.log('Debug - 用戶變化，重新載入��料')
       loadCustomerData()
     }
   },
@@ -343,38 +413,40 @@ onMounted(() => {
   console.log('Debug - 當前用戶:', authStore.currentUser)
   console.log('Debug - 是否已驗證:', authStore.isAuthenticated)
 
-  // 強制載入王小美的資料作為臨時解決方案
-  const wangXiaomei = customerStore.customers.find((c) => c.id === '1')
-  if (wangXiaomei) {
-    console.log('Debug - 強制載入王小美資料:', wangXiaomei)
-    Object.assign(form, {
-      name: wangXiaomei.name,
-      phone: wangXiaomei.phone,
-      email: wangXiaomei.email,
-      address: wangXiaomei.address,
-      age: wangXiaomei.age,
-      height: wangXiaomei.height,
-      weight: wangXiaomei.weight,
-      occupation: wangXiaomei.occupation,
-      hairType: wangXiaomei.hairType,
-      hairColor: wangXiaomei.hairColor,
-      skinCondition: wangXiaomei.skinCondition,
-      notes: wangXiaomei.notes,
-    })
-
-    if (wangXiaomei.privacySettings) {
-      Object.assign(privacySettings, wangXiaomei.privacySettings)
-    }
-
-    currentCustomer.value = wangXiaomei
-    console.log('Debug - 強制載入後的表單:', form)
+  // 確保認證狀態
+  if (!authStore.isAuthenticated) {
+    console.log('Debug - 用戶未登入，初始化認證...')
+    authStore.initializeAuth()
   }
 
-  // 稍微延遲確保所有store都已初始化
+  // 立即嘗試載入資料
+  loadCustomerData()
+
+  // 延遲再次載入確保資料正確
   setTimeout(() => {
-    console.log('Debug - 延遲後重新載入資料')
+    console.log('Debug - 延遲載入客戶資料')
     loadCustomerData()
-  }, 100)
+
+    // 強制更新響應式資料
+    const customer = reactiveCurrentCustomer.value
+    if (customer) {
+      console.log('Debug - 強制更新表單資料:', customer)
+      Object.assign(form, {
+        name: customer.name || '',
+        phone: customer.phone || '',
+        email: customer.email || '',
+        address: customer.address || '',
+        age: customer.age || 0,
+        height: customer.height || 0,
+        weight: customer.weight || 0,
+        occupation: customer.occupation || '',
+        hairType: customer.hairType || '',
+        hairColor: customer.hairColor || '',
+        skinCondition: customer.skinCondition || '',
+        notes: customer.notes || '',
+      })
+    }
+  }, 200)
 })
 </script>
 
@@ -387,7 +459,7 @@ onMounted(() => {
       </div>
       <div class="header-actions">
         <div v-if="!isEditing" class="header-btn-group">
-          <button @click="loadCustomerData" class="reload-btn">
+          <button @click="forceReloadData" class="reload-btn">
             <span class="btn-icon">🔄</span>
             重新載入
           </button>
@@ -432,8 +504,12 @@ onMounted(() => {
               placeholder="請輸入姓名"
             />
             <div v-else class="value-with-privacy">
-              <span class="value">{{ form.name || currentCustomer?.name || '未設定' }}</span>
-              <span v-if="currentCustomer?.privacySettings?.name" class="privacy-status public"
+              <span class="value">{{
+                reactiveCurrentCustomer?.name || form.name || '未設定'
+              }}</span>
+              <span
+                v-if="reactiveCurrentCustomer?.privacySettings?.name"
+                class="privacy-status public"
                 >對外公開</span
               >
               <span v-else class="privacy-status private">僅自己可見</span>
@@ -462,8 +538,12 @@ onMounted(() => {
               placeholder="0912-345-678"
             />
             <div v-else class="value-with-privacy">
-              <span class="value">{{ currentCustomer?.phone }}</span>
-              <span v-if="currentCustomer?.privacySettings?.phone" class="privacy-status public"
+              <span class="value">{{
+                reactiveCurrentCustomer?.phone || form.phone || '未設定'
+              }}</span>
+              <span
+                v-if="reactiveCurrentCustomer?.privacySettings?.phone"
+                class="privacy-status public"
                 >對外公開</span
               >
               <span v-else class="privacy-status private">僅自己可見</span>
@@ -492,8 +572,12 @@ onMounted(() => {
               placeholder="example@email.com"
             />
             <div v-else class="value-with-privacy">
-              <span class="value">{{ currentCustomer?.email }}</span>
-              <span v-if="currentCustomer?.privacySettings?.email" class="privacy-status public"
+              <span class="value">{{
+                reactiveCurrentCustomer?.email || form.email || '未設定'
+              }}</span>
+              <span
+                v-if="reactiveCurrentCustomer?.privacySettings?.email"
+                class="privacy-status public"
                 >對外公開</span
               >
               <span v-else class="privacy-status private">僅自己可見</span>
@@ -521,8 +605,12 @@ onMounted(() => {
               placeholder="請輸入完整地址"
             />
             <div v-else class="value-with-privacy">
-              <span class="value">{{ currentCustomer?.address }}</span>
-              <span v-if="currentCustomer?.privacySettings?.address" class="privacy-status public"
+              <span class="value">{{
+                reactiveCurrentCustomer?.address || form.address || '未設定'
+              }}</span>
+              <span
+                v-if="reactiveCurrentCustomer?.privacySettings?.address"
+                class="privacy-status public"
                 >對外公開</span
               >
               <span v-else class="privacy-status private">僅自己可見</span>
@@ -558,8 +646,10 @@ onMounted(() => {
               placeholder="25"
             />
             <div v-else class="value-with-privacy">
-              <span class="value">{{ currentCustomer?.age }} 歲</span>
-              <span v-if="currentCustomer?.privacySettings?.age" class="privacy-status public"
+              <span class="value">{{ reactiveCurrentCustomer?.age || form.age || 0 }} 歲</span>
+              <span
+                v-if="reactiveCurrentCustomer?.privacySettings?.age"
+                class="privacy-status public"
                 >對外公開</span
               >
               <span v-else class="privacy-status private">僅自己可見</span>
@@ -590,8 +680,12 @@ onMounted(() => {
               placeholder="165"
             />
             <div v-else class="value-with-privacy">
-              <span class="value">{{ currentCustomer?.height }} cm</span>
-              <span v-if="currentCustomer?.privacySettings?.height" class="privacy-status public"
+              <span class="value"
+                >{{ reactiveCurrentCustomer?.height || form.height || 0 }} cm</span
+              >
+              <span
+                v-if="reactiveCurrentCustomer?.privacySettings?.height"
+                class="privacy-status public"
                 >對外公開</span
               >
               <span v-else class="privacy-status private">僅自己可見</span>
